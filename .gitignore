@@ -1,0 +1,4 @@
+*.ds_store
+pycache
+node_modules
+tags
