@@ -1,1 +1,2 @@
-# ee149-project-cloud9
+# ee149-cloud9
+## By James Dai and Robert Peltekov
