@@ -62,6 +62,19 @@ prev_packet = None
 # on the transmitter and receiver (or be set to None to disable/the default).
 rfm69.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
+def getTempandHumidity():
+    err = ""
+    try:
+        temperature = dht22.temperature
+        humidity = dht22.humidity
+    except RuntimeError as e:
+        temperature = 0
+        humidity = 0
+        print(e)
+        err = "Failed to get temperature"
+    return temperature, humidity, err
+
+
 while True:
     packet = None
     # draw a box to clear the image
@@ -82,27 +95,23 @@ while True:
         display.text(packet_text, 25, 0, 1)
         time.sleep(1)
 
-
     
     if not btnA.value:
-        temperature = dht22.temperature
-        humidity = dht22.humidity
+        temperature, humidity, err = getTempandHumidity()
         # Send Button A
         display.fill(0)
         button_a_data = bytes(f"T: {temperature:.2f} H: {humidity:.2f}!\r\n","utf-8")
         rfm69.send(button_a_data)
         display.text('Sent Button A!', 25, 15, 1)
     elif not btnB.value:
-        temperature = dht22.temperature
-        humidity = dht22.humidity
+        temperature, humidity, err = getTempandHumidity()
         # Send Button B
         display.fill(0)
         button_b_data = bytes(f"T: {temperature:.2f} H: {humidity:.2f}!\r\n","utf-8")
         rfm69.send(button_b_data)
         display.text('Sent Button B!', 25, 15, 1)
     elif not btnC.value:
-        temperature = dht22.temperature
-        humidity = dht22.humidity
+        temperature, humidity, err = getTempandHumidity()
         # Send Button C
         display.fill(0)
         button_c_data = bytes(f"T: {temperature:.2f} H: {humidity:.2f}!\r\n","utf-8")
