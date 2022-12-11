@@ -1,7 +1,7 @@
 import adafruit_dht
 from board import *
 
-SENSOR_PIN = D4
+SENSOR_PIN = D19
 dht22 = adafruit_dht.DHT22(SENSOR_PIN)
 
 
