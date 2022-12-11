@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-sleep 10
+sleep 15
 cd ~/ee149-cloud9
 git fetch
 git pull
