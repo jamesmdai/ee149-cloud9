@@ -19,12 +19,6 @@ import adafruit_ssd1306
 # Import the RFM69 radio module.
 import adafruit_rfm69
 
-
-import adafruit_dht
-from board import *
-SENSOR_PIN = D19
-dht22 = adafruit_dht.DHT22(SENSOR_PIN)
-
 # Button A
 btnA = DigitalInOut(board.D5)
 btnA.direction = Direction.INPUT
@@ -81,33 +75,6 @@ while True:
         display.text('RX: ', 0, 0, 1)
         display.text(packet_text, 25, 0, 1)
         time.sleep(1)
-
-
-    
-    if not btnA.value:
-        temperature = dht22.temperature
-        humidity = dht22.humidity
-        # Send Button A
-        display.fill(0)
-        button_a_data = bytes(f"T: {temperature:.2f} H: {humidity:.2f}!\r\n","utf-8")
-        rfm69.send(button_a_data)
-        display.text('Sent Button A!', 25, 15, 1)
-    elif not btnB.value:
-        temperature = dht22.temperature
-        humidity = dht22.humidity
-        # Send Button B
-        display.fill(0)
-        button_b_data = bytes(f"T: {temperature:.2f} H: {humidity:.2f}!\r\n","utf-8")
-        rfm69.send(button_b_data)
-        display.text('Sent Button B!', 25, 15, 1)
-    elif not btnC.value:
-        temperature = dht22.temperature
-        humidity = dht22.humidity
-        # Send Button C
-        display.fill(0)
-        button_c_data = bytes(f"T: {temperature:.2f} H: {humidity:.2f}!\r\n","utf-8")
-        rfm69.send(button_c_data)
-        display.text('Sent Button C!', 25, 15, 1)
 
     display.show()
     time.sleep(0.1)
