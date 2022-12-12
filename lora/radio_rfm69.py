@@ -56,7 +56,10 @@ height = display.height
 CS = DigitalInOut(board.CE1)
 RESET = DigitalInOut(board.D25)
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
-rfm69 = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0)
+BAUD_RATE = 2000000 
+TX_POWER = 13
+rfm69 = adafruit_rfm69.RFM69(spi, CS, RESET, 915.0, baudrate=BAUD_RATE)
+rfm69.tx_power = TX_POWER
 prev_packet = None
 # Optionally set an encryption key (16 byte AES key). MUST match both
 # on the transmitter and receiver (or be set to None to disable/the default).
