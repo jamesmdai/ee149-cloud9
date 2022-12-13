@@ -121,6 +121,7 @@ class Robot:
     def set_display(self, text, x, y, col=1):
         self.display.fill(0)
         self.display.text(text, x, y, col)
+        self.display.show()
     def buttonA(self):
         data = bytes("IDLE", "utf-8")
         self.send_radio(data)
