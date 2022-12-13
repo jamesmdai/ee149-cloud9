@@ -60,6 +60,7 @@ class Robot:
 
         self.display.fill(0)
         self.display.show()
+        self.set_display("IDLE", 0, 0)
 
         # Motor control
         GPIO.setmode(GPIO.BCM)
@@ -93,12 +94,15 @@ class Robot:
         if packet_text is "IDLE":
             self.state = State.IDLE
             self.motor_idle()
+            self.set_display("IDLE", 0, 0)
         if packet_text is "FWD":
             self.state = State.FWD
             self.motor_fwd()
+            self.set_display("FWD", 0, 0)
         if packet_text is "BWD":
             self.state = State.BWD
             self.motor_bwd()
+            self.set_display("BWD", 0, 0)
         return packet
     def send_radio(self, data):
         self.radio.send(data)
