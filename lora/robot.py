@@ -94,15 +94,15 @@ class Robot:
         if packet_text == "IDLE":
             self.state = State.IDLE
             self.motor_idle()
-            self.set_display("IDLE", 0, 0)
+            self.set_display("IDLE", 0, 0, 1)
         if packet_text == "FWD":
             self.state = State.FWD
             self.motor_fwd()
-            self.set_display("FWD", 0, 0)
+            self.set_display("FWD", 0, 0, 1)
         if packet_text == "BWD":
             self.state = State.BWD
             self.motor_bwd()
-            self.set_display("BWD", 0, 0)
+            self.set_display("BWD", 0, 0, 1)
         return packet
     def send_radio(self, data):
         self.radio.send(data)
