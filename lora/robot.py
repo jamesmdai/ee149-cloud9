@@ -1,3 +1,4 @@
+import sys
 from re import A
 import time
 
@@ -130,7 +131,7 @@ class Robot:
         data = bytes("BWD", "utf-8")
         self.send_radio(data)
 
-r = Robot(sensor=True)
+r = Robot(sensor=(len(sys.argv) < 2))
 while True:
     if not r.btnA.value:
         r.buttonA()
