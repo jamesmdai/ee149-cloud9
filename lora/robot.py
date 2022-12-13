@@ -25,6 +25,8 @@ MOTOR_BWD_PIN = 21
 
 class State(Enum):
     IDLE = 1
+    FWD = 2
+    BWD = 3
 
 
 class Robot:
@@ -70,7 +72,6 @@ class Robot:
         spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
         self.radio = adafruit_rfm69.RFM69(spi, CS, RESET, RADIO_FREQUENCY, baudrate=BAUD_RATE)
         self.radio.tx_power = TX_POWER
-        self.prev_packet = None
         self.radio.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
     def read_sensor(self):
@@ -88,8 +89,19 @@ class Robot:
 
     def read_radio(self):
         packet = self.radio.receive()
+        packet_text = str(packet, "utf-8")
+        if packet_text is "IDLE":
+            self.state = State.IDLE
+            self.motor_idle()
+        if packet_text is "FWD":
+            self.state = State.FWD
+            self.motor_fwd()
+        if packet_text is "BWD":
+            self.state = State.BWD
+            self.motor_bwd()
         return packet
-
+    def send_radio(self, data):
+        self.radio.send(data)
     def motor_idle(self):
         GPIO.output(MOTOR_FWD_PIN, 0)
         GPIO.output(MOTOR_BWD_PIN, 0)
@@ -102,16 +114,15 @@ class Robot:
     def set_display(self, text, x, y, col=1):
         self.display.fill(0)
         self.display.text(text, x, y, col=1)
-
     def buttonA(self):
-        pass
-
+        data = bytes("IDLE", "utf-8")
+        self.send_radio(data)
     def buttonB(self):
-        pass
-
+        data = bytes("FWD", "utf-8")
+        self.send_radio(data)
     def buttonC(self):
-        pass
-
+        data = bytes("BWD", "utf-8")
+        self.send_radio(data)
 
 r = Robot(sensor=True)
 while True:
