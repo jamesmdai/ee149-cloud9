@@ -11,10 +11,16 @@ import adafruit_rfm69
 import adafruit_dht
 from enum import Enum
 
+import RPi.GPIO as GPIO           # import RPi.GPIO module  
+
+
 SENSOR_PIN = D19
 BAUD_RATE = 2000000
 TX_POWER = 13
 RADIO_FREQUENCY = 915.0
+
+MOTOR_FWD_PIN = 20
+MOTOR_BWD_PIN = 21
 
 
 class State(Enum):
@@ -53,6 +59,11 @@ class Robot:
         self.display.fill(0)
         self.display.show()
 
+        # Motor control
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(MOTOR_FWD_PIN, GPIO.OUT)
+        GPIO.setup(MOTOR_BWD_PIN, GPIO.OUT)
+
         # Radio
         CS = DigitalInOut(board.CE1)
         RESET = DigitalInOut(board.D25)
@@ -79,6 +90,15 @@ class Robot:
         packet = self.radio.receive()
         return packet
 
+    def motor_idle(self):
+        GPIO.output(MOTOR_FWD_PIN, 0)
+        GPIO.output(MOTOR_BWD_PIN, 0)
+    def motor_fwd(self):
+        GPIO.output(MOTOR_FWD_PIN, 1)
+        GPIO.output(MOTOR_BWD_PIN, 0)
+    def motor_bwd(self):
+        GPIO.output(MOTOR_FWD_PIN, 0)
+        GPIO.output(MOTOR_BWD_PIN, 1)
     def set_display(self, text, x, y, col=1):
         self.display.fill(0)
         self.display.text(text, x, y, col=1)
