@@ -91,15 +91,15 @@ class Robot:
     def read_radio(self):
         packet = self.radio.receive()
         packet_text = str(packet, "utf-8")
-        if packet_text is "IDLE":
+        if packet_text == "IDLE":
             self.state = State.IDLE
             self.motor_idle()
             self.set_display("IDLE", 0, 0)
-        if packet_text is "FWD":
+        if packet_text == "FWD":
             self.state = State.FWD
             self.motor_fwd()
             self.set_display("FWD", 0, 0)
-        if packet_text is "BWD":
+        if packet_text == "BWD":
             self.state = State.BWD
             self.motor_bwd()
             self.set_display("BWD", 0, 0)
@@ -117,7 +117,7 @@ class Robot:
         GPIO.output(MOTOR_BWD_PIN, 1)
     def set_display(self, text, x, y, col=1):
         self.display.fill(0)
-        self.display.text(text, x, y, col=1)
+        self.display.text(text, x, y)
     def buttonA(self):
         data = bytes("IDLE", "utf-8")
         self.send_radio(data)
