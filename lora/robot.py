@@ -82,6 +82,7 @@ class Robot:
         self.radio.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
         # Servo
+        GPIO.setup(SERVO_PIN, GPIO.OUT)
         self.servo = GPIO.PWM(SERVO_PIN, 50)
         self.servo.start(0)
 
