@@ -90,6 +90,8 @@ class Robot:
 
     def read_radio(self):
         packet = self.radio.receive()
+        if packet is None:
+            return None
         packet_text = str(packet, "utf-8")
         if packet_text == "IDLE":
             self.state = State.IDLE
