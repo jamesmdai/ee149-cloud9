@@ -22,6 +22,7 @@ RADIO_FREQUENCY = 915.0
 
 MOTOR_FWD_PIN = 20
 MOTOR_BWD_PIN = 21
+SERVO_PIN = 5
 
 
 class State(Enum):
@@ -76,6 +77,10 @@ class Robot:
         self.radio.tx_power = TX_POWER
         self.radio.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
 
+        # Servo
+        self.servo = GPIO.PWM(SERVO_PIN, 50)
+        self.servo.start(0)
+
     def read_sensor(self):
         if not self.sensor:
             return 0, 0, "Sensor not available"
@@ -118,6 +123,13 @@ class Robot:
     def motor_bwd(self):
         GPIO.output(MOTOR_FWD_PIN, 0)
         GPIO.output(MOTOR_BWD_PIN, 1)
+    def set_servo(self, angle):
+        duty = angle / 18 + 2
+        GPIO.output(SERVO_PIN, True)
+        self.servo.ChangeDutyCycle(duty)
+        time.sleep(1)
+        GPIO.output(SERVO_PIN, False)
+        self.servo.ChangeDutyCycle(0)
     def set_display(self, text, x, y, col=1):
         self.display.fill(0)
         self.display.text(text, x, y, col)
