@@ -104,7 +104,6 @@ class Robot:
         if packet is None:
             return None
         packet_text = str(packet, "utf-8")
-        print(packet_text)
         if packet_text == "GEAR":
             if self.state == State.IDLE:
                 self.state = State.FWD
