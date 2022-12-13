@@ -110,11 +110,11 @@ class Robot:
                 self.state = State.FWD
                 self.motor_fwd()
                 self.set_display("FWD", 0, 0)
-            if self.state == State.FWD:
+            elif self.state == State.FWD:
                 self.state = State.BWD
                 self.motor_bwd()
                 self.set_display("BWD", 0, 0)
-            if self.state == State.BWD:
+            elif self.state == State.BWD:
                 self.state = State.IDLE
                 self.motor_idle()
                 self.set_display("IDLE", 0, 0)
