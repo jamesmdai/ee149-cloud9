@@ -22,14 +22,18 @@ RADIO_FREQUENCY = 915.0
 
 MOTOR_FWD_PIN = 20
 MOTOR_BWD_PIN = 21
+
 SERVO_PIN = 5
+LEFT_ANGLE = 0
+RIGHT_ANGLE = 180
 
 
 class State(Enum):
     IDLE = 1
     FWD = 2
     BWD = 3
-
+    LEFT = 4
+    RIGHT = 5
 
 class Robot:
     def __init__(self, sensor=True):
@@ -99,18 +103,31 @@ class Robot:
         if packet is None:
             return None
         packet_text = str(packet, "utf-8")
-        if packet_text == "IDLE":
+        if packet_text == "GEAR":
+            if self.state == State.IDLE:
+                self.state = State.FWD
+                self.motor_fwd()
+                self.set_display("FWD", 0, 0)
+            if self.state == State.FWD:
+                self.state = State.BWD
+                self.motor_bwd()
+                self.set_display("BWD", 0, 0)
+            if self.state == State.BWD:
+                self.state = State.IDLE
+                self.motor_idle()
+                self.set_display("IDLE", 0, 0)
+        if packet_text == "LEFT":
+            self.state = State.LEFT
+            self.set_display("LEFT", 0, 0)
+            self.set_servo(LEFT_ANGLE)
             self.state = State.IDLE
-            self.motor_idle()
             self.set_display("IDLE", 0, 0)
-        if packet_text == "FWD":
-            self.state = State.FWD
-            self.motor_fwd()
-            self.set_display("FWD", 0, 0)
-        if packet_text == "BWD":
-            self.state = State.BWD
-            self.motor_bwd()
-            self.set_display("BWD", 0, 0)
+        if packet_text == "RIGHT":
+            self.state = State.RIGHT
+            self.set_display("RIGHT", 0, 0)
+            self.set_servo(RIGHT_ANGLE)
+            self.state = State.IDLE
+            self.set_display("IDLE", 0, 0)
         return packet
     def send_radio(self, data):
         self.radio.send(data)
@@ -135,13 +152,13 @@ class Robot:
         self.display.text(text, x, y, col)
         self.display.show()
     def buttonA(self):
-        data = bytes("IDLE", "utf-8")
+        data = bytes("GEAR", "utf-8")
         self.send_radio(data)
     def buttonB(self):
-        data = bytes("FWD", "utf-8")
+        data = bytes("LEFT", "utf-8")
         self.send_radio(data)
     def buttonC(self):
-        data = bytes("BWD", "utf-8")
+        data = bytes("RIGHT", "utf-8")
         self.send_radio(data)
 
 r = Robot(sensor=(len(sys.argv) < 2))
