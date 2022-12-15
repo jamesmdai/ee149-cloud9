@@ -36,11 +36,13 @@ class State(Enum):
     RIGHT = 5
 
 class Robot:
-    def __init__(self, sensor=True):
+    def __init__(self, robot=True):
         self.state = State.IDLE
+        self.num_packets = 0
 
-        # Enable sensor if sensor == TRUE
-        self.sensor = adafruit_dht.DHT22(SENSOR_PIN) if sensor else None
+        # Enable sensor if robot == TRUE
+        self.robot = robot
+        self.sensor = adafruit_dht.DHT22(SENSOR_PIN) if robot else None
 
         # Button A
         self.btnA = DigitalInOut(board.D5)
@@ -104,31 +106,37 @@ class Robot:
         if packet is None:
             return None
         packet_text = str(packet, "utf-8")
-        if packet_text == "GEAR":
-            if self.state == State.IDLE:
-                self.state = State.FWD
-                self.motor_fwd()
-                self.set_display("FWD", 0, 0)
-            elif self.state == State.FWD:
-                self.state = State.BWD
-                self.motor_bwd()
-                self.set_display("BWD", 0, 0)
-            elif self.state == State.BWD:
+        self.increment_pkts_received()
+        # State change packets for robot
+        if self.robot:
+            if packet_text == "GEAR":
+                if self.state == State.IDLE:
+                    self.state = State.FWD
+                    self.motor_fwd()
+                    self.set_display("FWD", 0, 0)
+                elif self.state == State.FWD:
+                    self.state = State.BWD
+                    self.motor_bwd()
+                    self.set_display("BWD", 0, 0)
+                elif self.state == State.BWD:
+                    self.state = State.IDLE
+                    self.motor_idle()
+                    self.set_display("IDLE", 0, 0)
+            if packet_text == "LEFT":
+                self.state = State.LEFT
+                self.set_display("LEFT", 0, 0)
+                self.set_servo(LEFT_ANGLE)
                 self.state = State.IDLE
-                self.motor_idle()
                 self.set_display("IDLE", 0, 0)
-        if packet_text == "LEFT":
-            self.state = State.LEFT
-            self.set_display("LEFT", 0, 0)
-            self.set_servo(LEFT_ANGLE)
-            self.state = State.IDLE
-            self.set_display("IDLE", 0, 0)
-        if packet_text == "RIGHT":
-            self.state = State.RIGHT
-            self.set_display("RIGHT", 0, 0)
-            self.set_servo(RIGHT_ANGLE)
-            self.state = State.IDLE
-            self.set_display("IDLE", 0, 0)
+            if packet_text == "RIGHT":
+                self.state = State.RIGHT
+                self.set_display("RIGHT", 0, 0)
+                self.set_servo(RIGHT_ANGLE)
+                self.state = State.IDLE
+                self.set_display("IDLE", 0, 0)
+        # ACK packets for controller
+        else:
+            self.set_display(packet_text, 0, 0)
         return packet
     def send_radio(self, data):
         self.radio.send(data)
@@ -152,6 +160,9 @@ class Robot:
         self.display.fill(0)
         self.display.text(text, x, y, col)
         self.display.show()
+    def increment_pkts_received(self):
+        self.num_packets += 1
+        self.set_display(f"PKTS: {self.num_packets}", 0, 25) 
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
         self.send_radio(data)
@@ -162,7 +173,7 @@ class Robot:
         data = bytes("RIGHT", "utf-8")
         self.send_radio(data)
 
-r = Robot(sensor=(len(sys.argv) < 2))
+r = Robot(robot=(len(sys.argv) < 2))
 while True:
     if not r.btnA.value:
         r.buttonA()
