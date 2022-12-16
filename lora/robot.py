@@ -29,11 +29,11 @@ RIGHT_ANGLE = 180
 
 
 class State(Enum):
-    IDLE = 1
-    FWD = 2
-    BWD = 3
-    LEFT = 4
-    RIGHT = 5
+    IDLE = "IDLE" 
+    FWD = "FWD" 
+    BWD = "BWD" 
+    LEFT = "LEFT" 
+    RIGHT = "RIGHT" 
 
 class Robot:
     def __init__(self, robot=True):
@@ -158,7 +158,8 @@ class Robot:
         self.servo.ChangeDutyCycle(0)
     def set_display(self, text, x, y, col=1):
         self.display.fill(0)
-        self.display.text(text + f"PKTS_RCVD: {self.num_packets}", x, y, col)
+        self.display.text("STATE: " + self.state.value + f"\nPKTS_RCVD: {self.num_packets}", x, y, col)
+        #self.display.text(text + f"PKTS_RCVD: {self.num_packets}", x, y, col)
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
