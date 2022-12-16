@@ -44,6 +44,8 @@ class Robot:
         self.turn = TurnState.CENTER
         self.num_packets = 0
         self.ping_cnt = 0
+        self.temperature = 0.0
+        self.humidity = 0.0
 
         # Enable sensor if robot == TRUE
         self.robot = robot
@@ -95,17 +97,11 @@ class Robot:
 
     def read_sensor(self):
         if not self.sensor:
-            return 0, 0, "Sensor not available"
-
-        err = ""
+            return
         try:
-            temperature, humidity = self.sensor.temperature, self.sensor.humidity
+            self.temperature, self.humidity = self.sensor.temperature, self.sensor.humidity
         except RuntimeError as e:
-            temperature, humidity = 0, 0
             print(e)
-            err = "Failed to get temperature"
-        return temperature, humidity, err
-
     def read_radio(self):
         packet = self.radio.receive()
         if packet is None:
@@ -136,7 +132,7 @@ class Robot:
                 self.refresh_display()
                 self.set_servo(RIGHT_ANGLE)
             # robot ACKs packet
-            s = f"{self.gear.value} {self.turn.value}"
+            s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
             self.send_radio(data)
             self.refresh_display()
@@ -155,6 +151,7 @@ class Robot:
                 self.turn = TurnState.CENTER
             if states[1] == "RIGHT":
                 self.turn = TurnState.RIGHT
+            self.temperature, self.humidity = states[2], states[3]
             self.refresh_display()
         return packet
     def ping(self):
@@ -184,7 +181,8 @@ class Robot:
         self.servo.ChangeDutyCycle(0)
     def refresh_display(self):
         self.display.fill(0)
-        self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}", 0, 0, 1)
+        self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}" +
+                f"\nTEM: {self.temperature} HUM: {self.humidity}", 0, 0, 1)
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
@@ -204,6 +202,7 @@ while True:
         r.buttonB()
     if not r.btnC.value:
         r.buttonC()
+    r.read_sensor()
     r.ping()
     r.read_radio()
     time.sleep(0.1)
