@@ -111,7 +111,6 @@ class Robot:
         if packet is None:
             return None
         packet_text = str(packet, "utf-8")
-        print(packet_text)
         self.num_packets += 1
         # State change packets for robot
         if self.robot:
@@ -138,7 +137,6 @@ class Robot:
                 self.set_servo(RIGHT_ANGLE)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value}"
-            print(s)
             data = bytes(s, "utf-8")
             self.send_radio(data)
             self.refresh_display()
@@ -164,7 +162,6 @@ class Robot:
             return
         if not self.ping_cnt % 10:
             data = bytes("PING", "utf-8")
-            print("PINGING")
             self.send_radio(data)
         self.ping_cnt += 1
     def send_radio(self, data):
@@ -191,15 +188,12 @@ class Robot:
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
-        print("GEAR")
         self.send_radio(data)
     def buttonB(self):
         data = bytes("LEFT", "utf-8")
-        print("LEFT")
         self.send_radio(data)
     def buttonC(self):
         data = bytes("RIGHT", "utf-8")
-        print("RIGHT")
         self.send_radio(data)
 
 r = Robot(robot=(len(sys.argv) < 2))
