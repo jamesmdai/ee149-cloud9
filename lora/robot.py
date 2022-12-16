@@ -106,7 +106,7 @@ class Robot:
         if packet is None:
             return None
         packet_text = str(packet, "utf-8")
-        self.increment_pkts_received()
+        self.num_packets += 1
         # State change packets for robot
         if self.robot:
             if packet_text == "GEAR":
@@ -158,11 +158,8 @@ class Robot:
         self.servo.ChangeDutyCycle(0)
     def set_display(self, text, x, y, col=1):
         self.display.fill(0)
-        self.display.text(text, x, y, col)
+        self.display.text(text + f"PKTS_RCVD: {self.num_packets}", x, y, col)
         self.display.show()
-    def increment_pkts_received(self):
-        self.num_packets += 1
-        self.set_display(f"PKTS: {self.num_packets}", 0, 25) 
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
         self.send_radio(data)
