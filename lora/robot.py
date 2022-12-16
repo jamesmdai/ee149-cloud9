@@ -191,12 +191,15 @@ class Robot:
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
+        print("GEAR")
         self.send_radio(data)
     def buttonB(self):
         data = bytes("LEFT", "utf-8")
+        print("LEFT")
         self.send_radio(data)
     def buttonC(self):
         data = bytes("RIGHT", "utf-8")
+        print("RIGHT")
         self.send_radio(data)
 
 r = Robot(robot=(len(sys.argv) < 2))
