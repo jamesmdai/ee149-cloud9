@@ -39,6 +39,7 @@ class Robot:
     def __init__(self, robot=True):
         self.state = State.IDLE
         self.num_packets = 0
+        self.ping_cnt = 0
 
         # Enable sensor if robot == TRUE
         self.robot = robot
@@ -134,10 +135,20 @@ class Robot:
                 self.set_servo(RIGHT_ANGLE)
                 self.state = State.IDLE
                 self.refresh_display()
+            if packet_text == "PING":
+                data = bytes("PING", "utf-8")
+                self.send_radio(data)
         # ACK packets for controller
         else:
             self.refresh_display()
         return packet
+    def ping(self):
+        if self.robot:
+            return
+        if not self.ping_cnt % 10:
+            data = bytes("PING", "utf-8")
+            self.send_radio(data)
+        self.ping_cnt += 1
     def send_radio(self, data):
         self.radio.send(data)
     def motor_idle(self):
