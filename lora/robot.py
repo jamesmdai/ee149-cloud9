@@ -139,6 +139,7 @@ class Robot:
             # robot ACKs packet
             data = bytes(f"{self.gear.value} {self.turn.value}", "utf-8")
             self.send_radio(data)
+            self.refresh_display()
         # ACK packets for controller
         else:
             states = packet_text.split(" ")
