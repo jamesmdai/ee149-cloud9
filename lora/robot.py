@@ -121,11 +121,11 @@ class Robot:
                     self.motor_fwd()
                     self.refresh_display()
                 elif self.gear == GearState.FWD:
-                    self.state = GearState.BWD
+                    self.gear = GearState.BWD
                     self.motor_bwd()
                     self.refresh_display()
                 elif self.gear == GearState.BWD:
-                    self.state = GearState.IDLE
+                    self.gear = GearState.IDLE
                     self.motor_idle()
                     self.refresh_display()
             if packet_text == "LEFT":
