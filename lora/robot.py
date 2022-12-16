@@ -27,17 +27,20 @@ SERVO_PIN = 13
 LEFT_ANGLE = 0
 RIGHT_ANGLE = 180
 
+class GearState(Enum):
+    IDLE = "IDLE"
+    FWD = "FWD"
+    BWD = "BWD"
 
-class State(Enum):
-    IDLE = "IDLE" 
-    FWD = "FWD" 
-    BWD = "BWD" 
-    LEFT = "LEFT" 
-    RIGHT = "RIGHT" 
+class TurnState(Enum):
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    CENTER = "CENTER"
 
 class Robot:
     def __init__(self, robot=True):
-        self.state = State.IDLE
+        self.gear = GearState.IDLE
+        self.turn = TurnState.CENTER
         self.num_packets = 0
         self.ping_cnt = 0
 
@@ -110,36 +113,46 @@ class Robot:
         self.num_packets += 1
         # State change packets for robot
         if self.robot:
+            data = ""
             if packet_text == "GEAR":
-                if self.state == State.IDLE:
-                    self.state = State.FWD
+                if self.gear == GearState.IDLE:
+                    self.gear = GearState.FWD
                     self.motor_fwd()
                     self.refresh_display()
-                elif self.state == State.FWD:
-                    self.state = State.BWD
+                elif self.gear == GearState.FWD:
+                    self.state = GearState.BWD
                     self.motor_bwd()
                     self.refresh_display()
-                elif self.state == State.BWD:
-                    self.state = State.IDLE
+                elif self.gear == GearState.BWD:
+                    self.state = GearState.IDLE
                     self.motor_idle()
                     self.refresh_display()
             if packet_text == "LEFT":
-                self.state = State.LEFT
+                self.turn = TurnState.LEFT
                 self.refresh_display()
                 self.set_servo(LEFT_ANGLE)
-                self.state = State.IDLE
-                self.refresh_display()
             if packet_text == "RIGHT":
-                self.state = State.RIGHT
+                self.turn = TurnState.RIGHT
                 self.refresh_display()
                 self.set_servo(RIGHT_ANGLE)
-                self.state = State.IDLE
-                self.refresh_display()
-            if packet_text == "PING":
-                data = bytes("PING", "utf-8")
-                self.send_radio(data)
+            # robot ACKs packet
+            data = bytes(f"{self.gear.value} {self.turn.value}", "utf-8")
+            self.send_radio(data)
         # ACK packets for controller
         else:
+            states = packet_text.split(" ")
+            if states[0] == "IDLE":
+                self.gear = GearState.IDLE
+            if states[0] == "FWD":
+                self.gear = GearState.FWD
+            if states[0] == "BWD":
+                self.gear = GearState.BWD
+            if states[1] == "LEFT":
+                self.turn = TurnState.LEFT
+            if states[1] == "CENTER":
+                self.turn = TurnState.CENTER
+            if states[1] == "RIGHT":
+                self.turn = TurnState.RIGHT
             self.refresh_display()
         return packet
     def ping(self):
