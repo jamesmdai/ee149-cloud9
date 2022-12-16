@@ -203,18 +203,14 @@ class Robot:
         self.send_radio(data)
 
 r = Robot(robot=(len(sys.argv) < 2))
-#while True:
-#    if not r.btnA.value:
-#        r.buttonA()
-#    if not r.btnB.value:
-#        r.buttonB()
-#    if not r.btnC.value:
-#        r.buttonC()
-#    r.read_radio()
-#    r.ping()
-#    time.sleep(0.1)
-if len(sys.argv) < 2:
-    r.read_radio()
-else:
+while True:
+    if not r.btnA.value:
+        r.buttonA()
+    if not r.btnB.value:
+        r.buttonB()
+    if not r.btnC.value:
+        r.buttonC()
     r.ping()
+    r.read_radio()
+    time.sleep(0.1)
 
