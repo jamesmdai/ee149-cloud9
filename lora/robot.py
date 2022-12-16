@@ -182,7 +182,7 @@ class Robot:
         self.servo.ChangeDutyCycle(0)
     def refresh_display(self):
         self.display.fill(0)
-        self.display.text(f"G_STATE: {self.gear.value} T_STATE: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}", 0, 0, 1)
+        self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}", 0, 0, 1)
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
@@ -203,5 +203,6 @@ while True:
     if not r.btnC.value:
         r.buttonC()
     r.read_radio()
+    r.ping()
     time.sleep(0.1)
 
