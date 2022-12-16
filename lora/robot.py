@@ -111,6 +111,7 @@ class Robot:
         if packet is None:
             return None
         packet_text = str(packet, "utf-8")
+        print(packet_text)
         self.num_packets += 1
         # State change packets for robot
         if self.robot:
@@ -162,6 +163,7 @@ class Robot:
             return
         if not self.ping_cnt % 10:
             data = bytes("PING", "utf-8")
+            print("PINGING")
             self.send_radio(data)
         self.ping_cnt += 1
     def send_radio(self, data):
