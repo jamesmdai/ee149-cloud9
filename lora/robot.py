@@ -182,7 +182,7 @@ class Robot:
         self.servo.ChangeDutyCycle(0)
     def refresh_display(self):
         self.display.fill(0)
-        self.display.text("STATE: " + self.state.value + f"\nPKTS_RCVD: {self.num_packets}", 0, 0, 1)
+        self.display.text(f"G_STATE: {self.gear} T_STATE: {self.turn}" + f"\nPKTS_RCVD: {self.num_packets}", 0, 0, 1)
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
