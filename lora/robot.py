@@ -68,7 +68,7 @@ class Robot:
 
         self.display.fill(0)
         self.display.show()
-        self.set_display("IDLE", 0, 0)
+        self.refresh_display()
 
         # Motor control
         GPIO.setmode(GPIO.BCM)
@@ -113,30 +113,30 @@ class Robot:
                 if self.state == State.IDLE:
                     self.state = State.FWD
                     self.motor_fwd()
-                    self.set_display("FWD", 0, 0)
+                    self.refresh_display()
                 elif self.state == State.FWD:
                     self.state = State.BWD
                     self.motor_bwd()
-                    self.set_display("BWD", 0, 0)
+                    self.refresh_display()
                 elif self.state == State.BWD:
                     self.state = State.IDLE
                     self.motor_idle()
-                    self.set_display("IDLE", 0, 0)
+                    self.refresh_display()
             if packet_text == "LEFT":
                 self.state = State.LEFT
-                self.set_display("LEFT", 0, 0)
+                self.refresh_display()
                 self.set_servo(LEFT_ANGLE)
                 self.state = State.IDLE
-                self.set_display("IDLE", 0, 0)
+                self.refresh_display()
             if packet_text == "RIGHT":
                 self.state = State.RIGHT
-                self.set_display("RIGHT", 0, 0)
+                self.refresh_display()
                 self.set_servo(RIGHT_ANGLE)
                 self.state = State.IDLE
-                self.set_display("IDLE", 0, 0)
+                self.refresh_display()
         # ACK packets for controller
         else:
-            self.set_display(packet_text, 0, 0)
+            self.refresh_display()
         return packet
     def send_radio(self, data):
         self.radio.send(data)
@@ -156,10 +156,9 @@ class Robot:
         time.sleep(1)
         GPIO.output(SERVO_PIN, False)
         self.servo.ChangeDutyCycle(0)
-    def set_display(self, text, x, y, col=1):
+    def refresh_display(self):
         self.display.fill(0)
-        self.display.text("STATE: " + self.state.value + f"\nPKTS_RCVD: {self.num_packets}", x, y, col)
-        #self.display.text(text + f"PKTS_RCVD: {self.num_packets}", x, y, col)
+        self.display.text("STATE: " + self.state.value + f"\nPKTS_RCVD: {self.num_packets}", 0, 0, 1)
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
