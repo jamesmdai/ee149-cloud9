@@ -115,7 +115,6 @@ class Robot:
         self.num_packets += 1
         # State change packets for robot
         if self.robot:
-            data = ""
             if packet_text == "GEAR":
                 if self.gear == GearState.IDLE:
                     self.gear = GearState.FWD
@@ -138,7 +137,9 @@ class Robot:
                 self.refresh_display()
                 self.set_servo(RIGHT_ANGLE)
             # robot ACKs packet
-            data = bytes(f"{self.gear.value} {self.turn.value}", "utf-8")
+            s = f"{self.gear.value} {self.turn.value}"
+            print(s)
+            data = bytes(s, "utf-8")
             self.send_radio(data)
             self.refresh_display()
         # ACK packets for controller
