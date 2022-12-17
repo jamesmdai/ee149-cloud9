@@ -200,7 +200,7 @@ class Robot:
     def refresh_display(self):
         self.display.fill(0)
         self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}" +
-                f"\nTEM: {self.temperature} HUM: {self.humidity}" + f"\nENC: {self.encoder_state}" if self.robot else "", 0, 0, 1)
+                f"\nTEM: {self.temperature} HUM: {self.humidity}" + f"\nENC: {self.encoder_state}", 0, 0, 1)
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
