@@ -201,7 +201,7 @@ class Robot:
         self.display.fill(0)
         if self.robot:
             self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}" + 
-                    f"\nTEM: {self.temperature} HUM: {self.humidity}" + f"\nENC: {self.encoder_state}", 0, 0, 1)
+                    f"\nTEM: {self.temperature} HUM: {self.humidity}" + f"\nENC: {self.stateCount}", 0, 0, 1)
         else:
             self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}" + 
                     f"\nTEM: {self.temperature} HUM: {self.humidity}", 0, 0, 1)
