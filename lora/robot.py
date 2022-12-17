@@ -15,6 +15,7 @@ from enum import Enum
 import RPi.GPIO as GPIO           # import RPi.GPIO module  
 
 
+MOTOR_ENCODER_PIN = 4
 SENSOR_PIN = D19
 BAUD_RATE = 2000000
 TX_POWER = 13
@@ -81,6 +82,7 @@ class Robot:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(MOTOR_FWD_PIN, GPIO.OUT)
         GPIO.setup(MOTOR_BWD_PIN, GPIO.OUT)
+        GPIO.setup(MOTOR_ENCODER_PIN, GPIO.IN)
 
         # Radio
         CS = DigitalInOut(board.CE1)
@@ -193,6 +195,8 @@ class Robot:
     def buttonC(self):
         data = bytes("RIGHT", "utf-8")
         self.send_radio(data)
+    def testMotorEncoder(self):
+        print(GPIO.input(MOTOR_ENCODER_PIN))
 
 r = Robot(robot=(len(sys.argv) < 2))
 while True:
