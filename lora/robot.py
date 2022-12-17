@@ -187,6 +187,8 @@ class Robot:
             self.encoder_state = new_encoder_state
             self.stateCount += 1
             self.stateCountTotal += 1
+        if self.stateCount == 200:
+            self.motor_idle()
         #if self.stateCount == statesPerRotation:
         #    self.rotation_count += 1
         #    self.stateCount = 0
