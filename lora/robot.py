@@ -209,5 +209,6 @@ while True:
     r.read_sensor()
     r.ping()
     r.read_radio()
+    r.testMotorEncoder()
     time.sleep(0.1)
 
