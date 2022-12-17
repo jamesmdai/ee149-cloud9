@@ -68,6 +68,17 @@ class Robot:
         self.btnC.direction = Direction.INPUT
         self.btnC.pull = Pull.UP
 
+        # Motor control
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(MOTOR_FWD_PIN, GPIO.OUT)
+        GPIO.setup(MOTOR_BWD_PIN, GPIO.OUT)
+        GPIO.setup(MOTOR_ENCODER_PIN, GPIO.IN)
+        self.encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
+        self.rotation_count = 0
+        self.stateCount = 0
+        self.stateCountTotal = 0
+
+
         # Create the I2C interface.
         i2c = busio.I2C(board.SCL, board.SDA)
 
@@ -79,15 +90,6 @@ class Robot:
         self.display.show()
         self.refresh_display()
 
-        # Motor control
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(MOTOR_FWD_PIN, GPIO.OUT)
-        GPIO.setup(MOTOR_BWD_PIN, GPIO.OUT)
-        GPIO.setup(MOTOR_ENCODER_PIN, GPIO.IN)
-        self.encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
-        self.rotation_count = 0
-        self.stateCount = 0
-        self.stateCountTotal = 0
 
         # Radio
         CS = DigitalInOut(board.CE1)
