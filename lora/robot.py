@@ -12,7 +12,8 @@ import adafruit_rfm69
 import adafruit_dht
 from enum import Enum
 
-import RPi.GPIO as GPIO           # import RPi.GPIO module  
+import RPi.GPIO as GPIO
+import threading
 
 
 MOTOR_ENCODER_PIN = 4
@@ -83,6 +84,10 @@ class Robot:
         GPIO.setup(MOTOR_FWD_PIN, GPIO.OUT)
         GPIO.setup(MOTOR_BWD_PIN, GPIO.OUT)
         GPIO.setup(MOTOR_ENCODER_PIN, GPIO.IN)
+        self.encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
+        self.rotation_count = 0
+        self.stateCount = 0
+        self.stateCountTotal = 0
 
         # Radio
         CS = DigitalInOut(board.CE1)
@@ -174,6 +179,15 @@ class Robot:
     def motor_bwd(self):
         GPIO.output(MOTOR_FWD_PIN, 0)
         GPIO.output(MOTOR_BWD_PIN, 1)
+    def read_motor_encoder(self):
+        new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
+        if new_encoder_state != self.encoder_state:
+            self.encoder_state = new_encoder_state
+            self.stateCount += 1
+            self.stateCountTotal += 1
+        #if self.stateCount == statesPerRotation:
+        #    self.rotation_count += 1
+        #    self.stateCount = 0
     def set_servo(self, angle):
         duty = angle / 18 + 2
         GPIO.output(SERVO_PIN, True)
@@ -184,7 +198,7 @@ class Robot:
     def refresh_display(self):
         self.display.fill(0)
         self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}" +
-                f"\nTEM: {self.temperature} HUM: {self.humidity}", 0, 0, 1)
+                f"\nTEM: {self.temperature} HUM: {self.humidity}" + f"\nENC: {self.encoder_state}", 0, 0, 1)
         self.display.show()
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
@@ -195,20 +209,26 @@ class Robot:
     def buttonC(self):
         data = bytes("RIGHT", "utf-8")
         self.send_radio(data)
-    def testMotorEncoder(self):
-        print(GPIO.input(MOTOR_ENCODER_PIN))
 
 r = Robot(robot=(len(sys.argv) < 2))
-while True:
-    if not r.btnA.value:
-        r.buttonA()
-    if not r.btnB.value:
-        r.buttonB()
-    if not r.btnC.value:
-        r.buttonC()
-    r.read_sensor()
-    r.ping()
-    r.read_radio()
-    r.testMotorEncoder()
-    time.sleep(0.1)
-
+def taskA():
+    while True:
+        if not r.btnA.value:
+            r.buttonA()
+        if not r.btnB.value:
+            r.buttonB()
+        if not r.btnC.value:
+            r.buttonC()
+        r.read_sensor()
+        r.ping()
+        r.read_radio()
+        time.sleep(0.1)
+def taskB():
+    while True:
+        r.read_motor_encoder()
+def main():
+    tasks = [taskA, taskB]
+    for task in tasks:
+        t = threading.Thread(target=task)
+        t.start()
+main()
