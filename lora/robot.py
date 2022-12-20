@@ -250,6 +250,9 @@ class Robot:
         self.m_b_pwm.start(duty)
 
     def set_servo(self, angle):
+        GPIO.output(SERVO_PIN, False)
+        self.servo.ChangeDutyCycle(0)
+        time.sleep(.1)
         duty = angle / 18 + 2
         GPIO.output(SERVO_PIN, True)
         self.servo.ChangeDutyCycle(duty)
