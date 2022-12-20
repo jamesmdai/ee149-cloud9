@@ -29,7 +29,7 @@ ROTATION_ENCODINGS = 121
 SERVO_PIN = 13
 LEFT_ANGLE = 0
 CENTER_ANGLE = 90
-RIGHT_ANGLE = 10
+RIGHT_ANGLE = 15
 
 class GearState(Enum):
     IDLE = "IDLE"
@@ -141,6 +141,8 @@ class Robot:
                 elif self.turn == TurnState.CENTER:
                     self.turn = TurnState.RIGHT
                     self.set_servo(RIGHT_ANGLE)
+            if packet_text == "DISCOVER":
+                pass
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
@@ -176,7 +178,7 @@ class Robot:
     def motor_idle(self):
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
-    def motor_fwd(self):
+    def motor_fwd(self, rotations=None):
         self.m_f_pwm.start(10)
         self.m_b_pwm.stop()
     def motor_bwd(self):
@@ -214,11 +216,10 @@ class Robot:
         data = bytes("GEAR", "utf-8")
         self.send_radio(data)
     def buttonB(self):
-        #data = bytes("LEFT", "utf-8")
         data = bytes("TURN", "utf-8")
         self.send_radio(data)
     def buttonC(self):
-        data = bytes("RIGHT", "utf-8")
+        data = bytes("DISCOVER", "utf-8")
         self.send_radio(data)
 
 r = Robot(robot=(len(sys.argv) < 2))
