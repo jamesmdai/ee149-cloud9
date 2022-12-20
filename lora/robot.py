@@ -146,7 +146,7 @@ class Robot:
                     self.turn = TurnState.RIGHT
                     self.set_servo(RIGHT_ANGLE)
             if packet_text == "DISCOVER":
-                self.set_servo(TurnState.RIGHT)
+                self.set_servo(RIGHT_ANGLE)
                 self.motor_fwd(rotations=5.6)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
