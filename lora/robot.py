@@ -138,15 +138,16 @@ class Robot:
                 elif self.gear == GearState.BWD:
                     self.gear = GearState.IDLE
                     self.motor_idle()
-            if packet_text == "TURN":
+            elif packet_text == "TURN":
                 if self.turn == TurnState.RIGHT:
                     self.turn = TurnState.CENTER
                     self.set_servo(CENTER_ANGLE)
                 elif self.turn == TurnState.CENTER:
                     self.turn = TurnState.RIGHT
                     self.set_servo(RIGHT_ANGLE)
-            if packet_text == "DISCOVER":
+            elif packet_text == "DISCOVER":
                 self.set_servo(RIGHT_ANGLE)
+                time.sleep(0.3)
                 self.motor_fwd(rotations=5.6)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
@@ -186,6 +187,7 @@ class Robot:
     def motor_fwd(self, rotations=None):
         if rotations:
             self.stateDeadline = self.stateCountTotal + rotations * ROTATION_ENCODINGS
+            time.sleep(0.3)
         self.m_f_pwm.start(75)
         self.m_b_pwm.stop()
     def motor_bwd(self):
@@ -197,7 +199,7 @@ class Robot:
             self.encoder_state = new_encoder_state
             self.stateCount += 1
             self.stateCountTotal += 1
-        if self.stateCountTotal == self.stateDeadline:
+        if self.stateDeadline and self.stateCountTotal >= self.stateDeadline:
             self.motor_idle()
             self.stateDeadline = None
     def set_servo(self, angle):
