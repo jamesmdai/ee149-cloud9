@@ -47,7 +47,8 @@ class Robot:
         self.turn = TurnState.CENTER
         self.num_packets = 0
         self.ping_cnt = 0
-        self.checked_ping_cnt = 0
+        self.ping_rec_cnt = 0
+        self.checked_rec_cnt = 0
         self.temperature = 0.0
         self.humidity = 0.0
 
@@ -153,10 +154,10 @@ class Robot:
         self.ping_cnt += 1
 
     def check_recieved_ping(self):
-        if self.ping_cnt <= self.checked_ping_cnt:
+        if self.ping_rec_cnt <= self.checked_rec_cnt:
             return False
         else:
-            self.checked_ping_cnt = self.ping_cnt
+            self.checked_rec_cnt = self.ping_rec_cnt
             return True
 
     def read_radio(self):
@@ -176,6 +177,7 @@ class Robot:
         # Interpret the Command
         # State change packets for robot
         if self.robot:
+            self.ping_rec_cnt += 1
             if packet_text == "GEAR":
                 if self.gear == GearState.IDLE:
                     self.gear = GearState.FWD
