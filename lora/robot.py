@@ -146,9 +146,11 @@ class Robot:
                     self.turn = TurnState.RIGHT
                     self.set_servo(RIGHT_ANGLE)
             elif packet_text == "DISCOVER":
+                self.turn = TurnState.RIGHT
                 self.set_servo(RIGHT_ANGLE)
                 time.sleep(0.3)
-                self.motor_fwd(rotations=5.6)
+                self.gear = GearState.FWD
+                self.motor_fwd(rotations=7.6)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
@@ -184,15 +186,15 @@ class Robot:
     def motor_idle(self):
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
-    def motor_fwd(self, rotations=None):
+    def motor_fwd(self, rotations=None, duty=75):
         if rotations:
             self.stateDeadline = self.stateCountTotal + rotations * ROTATION_ENCODINGS
             time.sleep(0.3)
-        self.m_f_pwm.start(75)
+        self.m_f_pwm.start(duty)
         self.m_b_pwm.stop()
-    def motor_bwd(self):
+    def motor_bwd(self, duty=75):
         self.m_f_pwm.stop()
-        self.m_b_pwm.start(75)
+        self.m_b_pwm.start(duty)
     def read_motor_encoder(self):
         new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
         if new_encoder_state != self.encoder_state:
@@ -200,6 +202,7 @@ class Robot:
             self.stateCount += 1
             self.stateCountTotal += 1
         if self.stateDeadline and self.stateCountTotal >= self.stateDeadline:
+            self.gear = GearState.IDLE
             self.motor_idle()
             self.stateDeadline = None
     def set_servo(self, angle):
