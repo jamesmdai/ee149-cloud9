@@ -124,23 +124,17 @@ class Robot:
                 if self.gear == GearState.IDLE:
                     self.gear = GearState.FWD
                     self.motor_fwd()
-                    self.refresh_display()
                 elif self.gear == GearState.FWD:
                     self.gear = GearState.BWD
                     self.motor_bwd()
-                    self.refresh_display()
                 elif self.gear == GearState.BWD:
                     self.gear = GearState.IDLE
                     self.motor_idle()
-                    self.refresh_display()
-            if packet_text == "LEFT":
-                self.turn = TurnState.LEFT
-                self.refresh_display()
-                self.set_servo(LEFT_ANGLE)
-            if packet_text == "RIGHT":
-                self.turn = TurnState.RIGHT
-                self.refresh_display()
-                self.set_servo(RIGHT_ANGLE)
+            if packet_text == "TURN":
+                if self.turn == TurnState.RIGHT:
+                    self.turn = TurnState.CENTER
+                elif self.turn == TurnState.CENTER:
+                    self.turn = TurnState.RIGHT
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
@@ -214,7 +208,8 @@ class Robot:
         data = bytes("GEAR", "utf-8")
         self.send_radio(data)
     def buttonB(self):
-        data = bytes("LEFT", "utf-8")
+        #data = bytes("LEFT", "utf-8")
+        data = bytes("TURN", "utf-8")
         self.send_radio(data)
     def buttonC(self):
         data = bytes("RIGHT", "utf-8")
