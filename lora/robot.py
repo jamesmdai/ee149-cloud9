@@ -252,6 +252,7 @@ class Robot:
         self.set_servo(RIGHT_ANGLE)
 
         for _ in range(8):
+            print("doing incr")
             time.sleep(0.3)
             self.motor_fwd(rotations=1.5, duty=40)
 
