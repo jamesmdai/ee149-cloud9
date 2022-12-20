@@ -47,6 +47,7 @@ class Robot:
         self.turn = TurnState.CENTER
         self.num_packets = 0
         self.ping_cnt = 0
+        self.checked_ping_cnt = 0
         self.temperature = 0.0
         self.humidity = 0.0
 
@@ -142,6 +143,13 @@ class Robot:
         if new_encoder_state != self.encoder_state:
             self.encoder_state = new_encoder_state
             self.stateCount += 1
+
+    def check_recieved_ping(self):
+        if self.ping_cnt <= self.checked_ping_cnt:
+            return False
+        else:
+            self.checked_ping_cnt = self.ping_cnt
+            return True
 
     def read_radio(self):
         # Recieve the latest Packet, If there is one.
@@ -249,11 +257,18 @@ class Robot:
     def discover(self):
         self.turn = TurnState.RIGHT
         self.set_servo(RIGHT_ANGLE)
-
-        for _ in range(8):
+        
+        rssi_vals = []
+        for step in range(8):
             print("doing incr")
-            time.sleep(0.3)
-            self.motor_encoder_move(rotations=1.5, duty=40)
+            while not self.check_recieved_ping():
+                time.sleep(.1)
+            rssi_vals.append(self.radio.last_rssi)
+            print(f"got rssi {self.radio.last_rssi}")
+            time.sleep(.6)
+            self.motor_encoder_move(rotations=.75, duty=50)
+
+        print(rssi_vals)
 
     # Buttons
     def buttonA(self):
