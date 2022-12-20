@@ -133,8 +133,10 @@ class Robot:
             if packet_text == "TURN":
                 if self.turn == TurnState.RIGHT:
                     self.turn = TurnState.CENTER
+                    self.set_servo(CENTER_ANGLE)
                 elif self.turn == TurnState.CENTER:
                     self.turn = TurnState.RIGHT
+                    self.set_servo(RIGHT_ANGLE)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
