@@ -209,8 +209,8 @@ class Robot:
         duty = angle / 18 + 2
         GPIO.output(SERVO_PIN, True)
         self.servo.ChangeDutyCycle(duty)
-        #time.sleep(1)
-        #GPIO.output(SERVO_PIN, False)
+        time.sleep(1)
+        GPIO.output(SERVO_PIN, False)
         #self.servo.ChangeDutyCycle(0)
     def refresh_display(self):
         self.display.fill(0)
