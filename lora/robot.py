@@ -75,8 +75,8 @@ class Robot:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(MOTOR_FWD_PIN, GPIO.OUT)
         GPIO.setup(MOTOR_BWD_PIN, GPIO.OUT)
-        self.m_f_pwm = GPIO.PWM(MOTOR_FWD_PIN, 50)
-        self.m_b_pwm = GPIO.PWM(MOTOR_BWD_PIN, 50)
+        self.m_f_pwm = GPIO.PWM(MOTOR_FWD_PIN, 20)
+        self.m_b_pwm = GPIO.PWM(MOTOR_BWD_PIN, 20)
         self.m_f_pwm.start(0)
         self.m_b_pwm.start(0)
 
@@ -265,6 +265,8 @@ class Robot:
         self.turn = TurnState.RIGHT
         self.set_servo(RIGHT_ANGLE)
         
+        max_seen = -1000
+        max_step = 0
         rssi_vals = []
         for step in range(8):
             print("doing incr")
@@ -272,11 +274,13 @@ class Robot:
                 print(self.checked_rec_cnt, self.ping_rec_cnt)
                 time.sleep(.1)
             rssi_vals.append(self.radio.last_rssi)
+            if (self.radio.last_rssi > max_seen):
+                max_step = step
             print(f"got rssi {self.radio.last_rssi}")
             time.sleep(.6)
             self.motor_encoder_move(rotations=.75, duty=40)
-
-        print(rssi_vals)
+        time.sleep(1)
+        self.motor_encoder_move(rotations=.75*max_step, duty=40)
 
     # Buttons
     def buttonA(self):
