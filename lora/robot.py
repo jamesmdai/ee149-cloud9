@@ -144,6 +144,14 @@ class Robot:
             self.encoder_state = new_encoder_state
             self.stateCount += 1
 
+    def ping(self):
+        if self.robot:
+            return
+        if not self.ping_cnt % 10:
+            data = bytes("PING", "utf-8")
+            self.send_radio(data)
+        self.ping_cnt += 1
+
     def check_recieved_ping(self):
         if self.ping_cnt <= self.checked_ping_cnt:
             return False
@@ -186,7 +194,8 @@ class Robot:
                     self.turn = TurnState.RIGHT
                     self.set_servo(RIGHT_ANGLE)
             elif packet_text == "DISCOVER":
-                self.discover()
+                t = threading.Thread(target=self.discover)
+                t.start()
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
@@ -211,14 +220,6 @@ class Robot:
             self.temperature, self.humidity = states[2], states[3]
             self.refresh_display()
         return packet
-
-    def ping(self):
-        if self.robot:
-            return
-        if not self.ping_cnt % 10:
-            data = bytes("PING", "utf-8")
-            self.send_radio(data)
-        self.ping_cnt += 1
 
     def send_radio(self, data):
         self.radio.send(data)
@@ -294,9 +295,11 @@ def taskA():
         r.ping()
         r.read_radio()
         time.sleep(0.1)
+
 def taskB():
     while True:
         r.read_motor_encoder()
+
 def main():
     tasks = [taskA, taskB]
     for task in tasks:
