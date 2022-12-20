@@ -168,6 +168,7 @@ class Robot:
 
         # Is the packet garbled?
         try:
+            self.ping_rec_cnt += 1
             packet_text = str(packet, "utf-8")
         except UnicodeDecodeError as e:
             print(e)
@@ -177,7 +178,6 @@ class Robot:
         # Interpret the Command
         # State change packets for robot
         if self.robot:
-            self.ping_rec_cnt += 1
             if packet_text == "GEAR":
                 if self.gear == GearState.IDLE:
                     self.gear = GearState.FWD
@@ -268,7 +268,6 @@ class Robot:
         for step in range(8):
             print("doing incr")
             while not self.check_recieved_ping():
-                print(self.ping_rec_cnt)
                 time.sleep(.1)
             rssi_vals.append(self.radio.last_rssi)
             print(f"got rssi {self.radio.last_rssi}")
