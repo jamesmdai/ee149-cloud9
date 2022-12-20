@@ -82,7 +82,7 @@ class Robot:
         self.rotation_count = 0
         self.stateCount = 0
         self.stateCountTotal = 0
-
+        self.stateDeadline = None
 
         # Create the I2C interface.
         i2c = busio.I2C(board.SCL, board.SDA)
@@ -146,7 +146,8 @@ class Robot:
                     self.turn = TurnState.RIGHT
                     self.set_servo(RIGHT_ANGLE)
             if packet_text == "DISCOVER":
-                pass
+                self.set_servo(TurnState.RIGHT)
+                self.motor_fwd(rotations=5.6)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
@@ -183,6 +184,8 @@ class Robot:
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
     def motor_fwd(self, rotations=None):
+        if rotations:
+            self.stateDeadline = self.stateCountTotal + rotations * ROTATION_ENCODINGS
         self.m_f_pwm.start(75)
         self.m_b_pwm.stop()
     def motor_bwd(self):
@@ -194,11 +197,9 @@ class Robot:
             self.encoder_state = new_encoder_state
             self.stateCount += 1
             self.stateCountTotal += 1
-        if self.stateCount == 121:
+        if self.stateCountTotal == self.stateDeadline:
             self.motor_idle()
-        #if self.stateCount == statesPerRotation:
-        #    self.rotation_count += 1
-        #    self.stateCount = 0
+            self.stateDeadline = None
     def set_servo(self, angle):
         duty = angle / 18 + 2
         GPIO.output(SERVO_PIN, True)
