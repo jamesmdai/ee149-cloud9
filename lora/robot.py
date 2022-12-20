@@ -73,6 +73,10 @@ class Robot:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(MOTOR_FWD_PIN, GPIO.OUT)
         GPIO.setup(MOTOR_BWD_PIN, GPIO.OUT)
+        self.m_f_pwm = GPIO.PWM(MOTOR_FWD_PIN, 50)
+        self.m_b_pwm = GPIO.PWM(MOTOR_BWD_PIN, 50)
+        self.m_f_pwm.start(0)
+        self.m_b_pwm.start(0)
         GPIO.setup(MOTOR_ENCODER_PIN, GPIO.IN)
         self.encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
         self.rotation_count = 0
@@ -170,14 +174,14 @@ class Robot:
     def send_radio(self, data):
         self.radio.send(data)
     def motor_idle(self):
-        GPIO.output(MOTOR_FWD_PIN, 0)
-        GPIO.output(MOTOR_BWD_PIN, 0)
+        self.m_f_pwm.stop()
+        self.m_b_pwm.stop()
     def motor_fwd(self):
-        GPIO.output(MOTOR_FWD_PIN, 1)
-        GPIO.output(MOTOR_BWD_PIN, 0)
+        self.m_f_pwm.start(50)
+        self.m_b_pwm.stop()
     def motor_bwd(self):
-        GPIO.output(MOTOR_FWD_PIN, 0)
-        GPIO.output(MOTOR_BWD_PIN, 1)
+        self.m_f_pwm.stop()
+        self.m_b_pwm.start(50)
     def read_motor_encoder(self):
         new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
         if new_encoder_state != self.encoder_state:
