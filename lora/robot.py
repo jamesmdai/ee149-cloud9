@@ -137,7 +137,7 @@ class Robot:
         try:
             self.temperature, self.humidity = self.sensor.temperature, self.sensor.humidity
         except RuntimeError as e:
-            print(e)
+            pass # fuck a temp sensor print(e)
 
     def read_motor_encoder(self):
         new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
@@ -239,6 +239,7 @@ class Robot:
     def motor_encoder_move(self, rotations=1.5, duty=75):
         self.stateDeadline = self.stateCount + rotations * ROTATION_ENCODINGS
         while self.stateDeadline and self.stateCount <= self.stateDeadline:
+            print("moving")
             self.motor_fwd(duty)
         self.gear = GearState.IDLE
         self.motor_idle()
