@@ -150,7 +150,7 @@ class Robot:
                 self.set_servo(RIGHT_ANGLE)
                 time.sleep(0.3)
                 self.gear = GearState.FWD
-                self.motor_fwd(rotations=7.6, duty=40)
+                self.motor_fwd(rotations=12.0, duty=40)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
