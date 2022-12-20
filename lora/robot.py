@@ -109,6 +109,26 @@ class Robot:
         self.servo = GPIO.PWM(SERVO_PIN, 50)
         self.servo.start(0)
 
+    def refresh_display(self):
+        self.display.fill(0)
+        if self.robot:
+            self.display.text(
+                    f"G: {self.gear.value} T: {self.turn.value}" +
+                    f"\nPKTS_RCVD: {self.num_packets}" +
+                    f"\nTEM: {self.temperature} HUM: {self.humidity}" +
+                    f"\nENC: {self.stateCount}",
+                    0, 0, 1
+            )
+        else:
+            self.display.text(
+                    f"G: {self.gear.value} T: {self.turn.value}" +
+                    f"\nPKTS_RCVD: {self.num_packets}" +
+                    f"\nTEM: {self.temperature} HUM: {self.humidity}",
+                    0, 0, 1
+            )
+
+        self.display.show()
+
     def read_sensor(self):
         if not self.sensor:
             return
@@ -116,16 +136,33 @@ class Robot:
             self.temperature, self.humidity = self.sensor.temperature, self.sensor.humidity
         except RuntimeError as e:
             print(e)
+
+    def read_motor_encoder(self):
+        new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
+        if new_encoder_state != self.encoder_state:
+            self.encoder_state = new_encoder_state
+            self.stateCount += 1
+            self.stateCountTotal += 1
+        if self.stateDeadline and self.stateCountTotal >= self.stateDeadline:
+            self.gear = GearState.IDLE
+            self.motor_idle()
+            self.stateDeadline = None
+
     def read_radio(self):
+        # Recieve the latest Packet, If there is one.
         packet = self.radio.receive()
         if packet is None:
             return None
+
+        # Is the packet garbled?
         try:
             packet_text = str(packet, "utf-8")
         except UnicodeDecodeError as e:
             print(e)
             return
         self.num_packets += 1
+
+        # Interpret the Command
         # State change packets for robot
         if self.robot:
             if packet_text == "GEAR":
@@ -146,16 +183,13 @@ class Robot:
                     self.turn = TurnState.RIGHT
                     self.set_servo(RIGHT_ANGLE)
             elif packet_text == "DISCOVER":
-                self.turn = TurnState.RIGHT
-                self.set_servo(RIGHT_ANGLE)
-                time.sleep(0.3)
-                self.gear = GearState.FWD
-                self.motor_fwd(rotations=1.5, duty=40)
+                self.discover()
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
             self.send_radio(data)
             self.refresh_display()
+
         # ACK packets for controller
         else:
             states = packet_text.split(" ")
@@ -174,6 +208,7 @@ class Robot:
             self.temperature, self.humidity = states[2], states[3]
             self.refresh_display()
         return packet
+
     def ping(self):
         if self.robot:
             return
@@ -181,30 +216,29 @@ class Robot:
             data = bytes("PING", "utf-8")
             self.send_radio(data)
         self.ping_cnt += 1
+
     def send_radio(self, data):
         self.radio.send(data)
+
+
+    # Movement
     def motor_idle(self):
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
+
     def motor_fwd(self, rotations=None, duty=75):
+        self.gear = GearState.FWD
         if rotations:
             self.stateDeadline = self.stateCountTotal + rotations * ROTATION_ENCODINGS
             time.sleep(0.3)
         self.m_f_pwm.start(duty)
         self.m_b_pwm.stop()
+
     def motor_bwd(self, duty=75):
+        self.gear = GearState.BWD
         self.m_f_pwm.stop()
         self.m_b_pwm.start(duty)
-    def read_motor_encoder(self):
-        new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
-        if new_encoder_state != self.encoder_state:
-            self.encoder_state = new_encoder_state
-            self.stateCount += 1
-            self.stateCountTotal += 1
-        if self.stateDeadline and self.stateCountTotal >= self.stateDeadline:
-            self.gear = GearState.IDLE
-            self.motor_idle()
-            self.stateDeadline = None
+
     def set_servo(self, angle):
         duty = angle / 18 + 2
         GPIO.output(SERVO_PIN, True)
@@ -212,16 +246,16 @@ class Robot:
         #time.sleep(1)
         #GPIO.output(SERVO_PIN, False)
         #self.servo.ChangeDutyCycle(0)
-    def refresh_display(self):
-        self.display.fill(0)
-        if self.robot:
-            self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}" + 
-                    f"\nTEM: {self.temperature} HUM: {self.humidity}" + f"\nENC: {self.stateCount}", 0, 0, 1)
-        else:
-            self.display.text(f"G: {self.gear.value} T: {self.turn.value}" + f"\nPKTS_RCVD: {self.num_packets}" + 
-                    f"\nTEM: {self.temperature} HUM: {self.humidity}", 0, 0, 1)
 
-        self.display.show()
+    def discover(self):
+        self.turn = TurnState.RIGHT
+        self.set_servo(RIGHT_ANGLE)
+
+        for _ in range(8):
+            time.sleep(0.3)
+            self.motor_fwd(rotations=1.5, duty=40)
+
+    # Buttons
     def buttonA(self):
         data = bytes("GEAR", "utf-8")
         self.send_radio(data)
