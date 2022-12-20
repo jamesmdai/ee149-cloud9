@@ -265,7 +265,7 @@ class Robot:
         for step in range(8):
             print("doing incr")
             while not self.check_recieved_ping():
-                print(self.ping_cnt)
+                print(self.ping_rec_cnt)
                 time.sleep(.1)
             rssi_vals.append(self.radio.last_rssi)
             print(f"got rssi {self.radio.last_rssi}")
