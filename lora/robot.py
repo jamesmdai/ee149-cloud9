@@ -120,7 +120,11 @@ class Robot:
         packet = self.radio.receive()
         if packet is None:
             return None
-        packet_text = str(packet, "utf-8")
+        try:
+            packet_text = str(packet, "utf-8")
+        except UnicodeDecodeError as e:
+            print(e)
+            return
         self.num_packets += 1
         # State change packets for robot
         if self.robot:
