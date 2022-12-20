@@ -191,7 +191,7 @@ class Robot:
             self.stateCount += 1
             self.stateCountTotal += 1
         if self.stateCount == 121:
-            self.motor_idle()
+            #self.motor_idle()
         #if self.stateCount == statesPerRotation:
         #    self.rotation_count += 1
         #    self.stateCount = 0
