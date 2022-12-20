@@ -177,11 +177,11 @@ class Robot:
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
     def motor_fwd(self):
-        self.m_f_pwm.start(50)
+        self.m_f_pwm.start(10)
         self.m_b_pwm.stop()
     def motor_bwd(self):
         self.m_f_pwm.stop()
-        self.m_b_pwm.start(50)
+        self.m_b_pwm.start(10)
     def read_motor_encoder(self):
         new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
         if new_encoder_state != self.encoder_state:
