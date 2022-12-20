@@ -273,7 +273,7 @@ class Robot:
             rssi_vals.append(self.radio.last_rssi)
             print(f"got rssi {self.radio.last_rssi}")
             time.sleep(.6)
-            self.motor_encoder_move(rotations=.75, duty=50)
+            self.motor_encoder_move(rotations=.75, duty=40)
 
         print(rssi_vals)
 
