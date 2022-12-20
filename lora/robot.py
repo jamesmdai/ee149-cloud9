@@ -150,7 +150,7 @@ class Robot:
                 self.set_servo(RIGHT_ANGLE)
                 time.sleep(0.3)
                 self.gear = GearState.FWD
-                self.motor_fwd(rotations=7.6)
+                self.motor_fwd(rotations=7.6, duty=50)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
@@ -209,8 +209,8 @@ class Robot:
         duty = angle / 18 + 2
         GPIO.output(SERVO_PIN, True)
         self.servo.ChangeDutyCycle(duty)
-        time.sleep(1)
-        GPIO.output(SERVO_PIN, False)
+        #time.sleep(1)
+        #GPIO.output(SERVO_PIN, False)
         #self.servo.ChangeDutyCycle(0)
     def refresh_display(self):
         self.display.fill(0)
