@@ -77,11 +77,11 @@ class Robot:
         self.m_b_pwm = GPIO.PWM(MOTOR_BWD_PIN, 50)
         self.m_f_pwm.start(0)
         self.m_b_pwm.start(0)
+
         GPIO.setup(MOTOR_ENCODER_PIN, GPIO.IN)
         self.encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
         self.rotation_count = 0
         self.stateCount = 0
-        self.stateCountTotal = 0
         self.stateDeadline = None
 
         # Create the I2C interface.
@@ -142,11 +142,6 @@ class Robot:
         if new_encoder_state != self.encoder_state:
             self.encoder_state = new_encoder_state
             self.stateCount += 1
-            self.stateCountTotal += 1
-        if self.stateDeadline and self.stateCountTotal >= self.stateDeadline:
-            self.gear = GearState.IDLE
-            self.motor_idle()
-            self.stateDeadline = None
 
     def read_radio(self):
         # Recieve the latest Packet, If there is one.
@@ -220,19 +215,23 @@ class Robot:
     def send_radio(self, data):
         self.radio.send(data)
 
-
     # Movement
     def motor_idle(self):
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
 
-    def motor_fwd(self, rotations=None, duty=75):
+    def motor_fwd(self, duty=75):
         self.gear = GearState.FWD
-        if rotations:
-            self.stateDeadline = self.stateCountTotal + rotations * ROTATION_ENCODINGS
-            time.sleep(0.3)
         self.m_f_pwm.start(duty)
         self.m_b_pwm.stop()
+
+    def motor_encoder_move(self, rotations=1.5, duty=75):
+        self.stateDeadline = self.stateCount + rotations * ROTATION_ENCODINGS
+        while self.stateDeadline and self.stateCount <= self.stateDeadline:
+            self.motor_fwd(duty)
+        self.gear = GearState.IDLE
+        self.motor_idle()
+        self.stateDeadline = None
 
     def motor_bwd(self, duty=75):
         self.gear = GearState.BWD
@@ -254,7 +253,7 @@ class Robot:
         for _ in range(8):
             print("doing incr")
             time.sleep(0.3)
-            self.motor_fwd(rotations=1.5, duty=40)
+            self.motor_encoder_move(rotations=1.5, duty=40)
 
     # Buttons
     def buttonA(self):
