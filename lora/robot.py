@@ -18,7 +18,7 @@ import threading
 
 MOTOR_ENCODER_PIN = 4
 SENSOR_PIN = D19
-BAUD_RATE = 200000
+BAUD_RATE = 2000000
 TX_POWER = 13
 RADIO_FREQUENCY = 915.0
 
@@ -301,6 +301,7 @@ class Robot:
         data = bytes("TURN", "utf-8")
         self.send_radio(data)
     def buttonC(self):
+        print(
         if self.robot:
             t = threading.Thread(name="discover", target=self.discover)
             t.start()
