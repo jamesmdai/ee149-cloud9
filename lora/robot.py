@@ -279,7 +279,7 @@ class Robot:
                 max_step = step
                 max_seen = self.radio.last_rssi
             time.sleep(1.5)
-            self.motor_encoder_move(rotations=2.25)
+            self.motor_encoder_move(rotations=2.25, maxduty=35)
         time.sleep(1)
         print(f"starting move to max_step # {max_step}")
         # for step in range(max_step):
