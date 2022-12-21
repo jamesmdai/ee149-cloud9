@@ -234,7 +234,7 @@ class Robot:
         self.m_f_pwm.stop()
         self.m_b_pwm.start(duty)
 
-    def motor_encoder_move(self, rotations=1.5, slope=1, minduty=15, maxduty=38):
+    def motor_encoder_move(self, rotations=1.5, slope=1, minduty=15, maxduty=40):
         self.stateDeadline = self.stateCount + rotations * ROTATION_ENCODINGS
         init_err = (self.stateDeadline - self.stateCount) # set the initial error to a larger value so that slope wont overcount it
         while self.stateDeadline and self.stateCount <= self.stateDeadline:
@@ -281,9 +281,10 @@ class Robot:
             self.motor_encoder_move(rotations=2.25)
         time.sleep(1)
         print(f"starting move to max_step # {max_step}")
-        for step in range(max_step):
-            time.sleep(1.5)
-            self.motor_encoder_move(rotations=2.25)
+        # for step in range(max_step):
+        #     time.sleep(1.5)
+        #     self.motor_encoder_move(rotations=2.25)
+        self.motor_encoder_move(rotations=2.25*max_step, maxduty=35)
         self.discover_mode = False
 
     # Buttons
