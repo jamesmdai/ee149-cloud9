@@ -274,6 +274,9 @@ class Robot:
             while not self.await_ping(curr_pings):
                 for thread in threading.enumerate():
                     print(thread.is_alive(), thread.name)
+                    frame = sys._current_frames().get(thread.ident, None)
+                    if frame:
+                        print(frame.f_code.co_filename, frame.f_code.co_name, frame.f_code.co_firstlineno)
                 print(self.num_packets)
                 time.sleep(1.0)
             rssi_vals.append(self.radio.last_rssi)
