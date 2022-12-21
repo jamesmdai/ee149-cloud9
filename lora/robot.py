@@ -140,7 +140,6 @@ class Robot:
         if self.robot:
             return
         data = bytes("PING", "utf-8")
-        print('pinging')
         self.send_radio(data)
 
     def await_ping(self, curr_pings):
@@ -148,7 +147,6 @@ class Robot:
 
     def read_radio(self):
         # Recieve the latest Packet, If there is one.
-        print('reading')
         packet = self.radio.receive()
         if packet is None:
             return None
@@ -156,7 +154,6 @@ class Robot:
         # Is the packet garbled?
         try:
             packet_text = str(packet, "utf-8")
-            print('found juan')
             self.num_packets += 1
             self.last_rssi = self.radio.last_rssi
         except UnicodeDecodeError as e:
@@ -175,7 +172,6 @@ class Robot:
             elif packet_text == "DISCOVER":
                 t = threading.Thread(name="discover", target=self.discover)
                 t.start()
-                print(t.native_id)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
@@ -273,11 +269,6 @@ class Robot:
             curr_pings = self.num_packets
             print(curr_pings)
             while not self.await_ping(curr_pings):
-                for thread in threading.enumerate():
-                    print(thread.is_alive(), thread.name)
-                    frame = sys._current_frames().get(thread.ident, None)
-                    if frame:
-                        print(frame.f_code.co_filename, frame.f_code.co_name, frame.f_code.co_firstlineno)
                 print(self.num_packets)
                 time.sleep(1.0)
             rssi_vals.append(self.radio.last_rssi)
@@ -304,7 +295,8 @@ class Robot:
         self.send_radio(data)
     def buttonC(self):
         if self.robot:
-            self.discover()
+            t = threading.Thread(name="discover", target=self.discover)
+            t.start()
             return
         data = bytes("DISCOVER", "utf-8")
         self.send_radio(data)
