@@ -51,6 +51,7 @@ class Robot:
         self.checked_rec_cnt = 0
         self.temperature = 0.0
         self.humidity = 0.0
+        self.last_rssi = None
 
         # Enable sensor if robot == TRUE
         self.robot = robot
@@ -119,17 +120,18 @@ class Robot:
                     f"G: {self.gear.value} T: {self.turn.value}" +
                     f"\nPKTS_RCVD: {self.num_packets}" +
                     f"\nTEM: {self.temperature} HUM: {self.humidity}" +
-                    f"\nENC: {self.stateCount}",
+                    f"\nENC: {self.stateCount}" + 
+                    f"\nRSSI: {self.last_rssi}",
                     0, 0, 1
             )
         else:
             self.display.text(
                     f"G: {self.gear.value} T: {self.turn.value}" +
                     f"\nPKTS_RCVD: {self.num_packets}" +
-                    f"\nTEM: {self.temperature} HUM: {self.humidity}",
+                    f"\nTEM: {self.temperature} HUM: {self.humidity}" + 
+                    f"\nRSSI: {self.last_rssi}",
                     0, 0, 1
             )
-
         self.display.show()
 
     def read_sensor(self):
@@ -175,6 +177,7 @@ class Robot:
             print(e)
             return
         self.num_packets += 1
+        self.last_rssi = self.radio.last_rssi
 
         # Interpret the Command
         # State change packets for robot
@@ -192,7 +195,7 @@ class Robot:
             self.send_radio(data)
             self.refresh_display()
 
-        # ACK packets for controller
+        # ACK packets for controller, updates controller with robot state
         else:
             states = packet_text.split(" ")
             if states[0] == "IDLE":
