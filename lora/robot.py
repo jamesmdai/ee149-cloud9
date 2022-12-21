@@ -276,10 +276,10 @@ class Robot:
             rssi_vals.append(self.radio.last_rssi)
             if (self.radio.last_rssi > max_seen):
                 max_step = step
-            time.sleep(1)
+            time.sleep(1.5)
             self.motor_encoder_move(rotations=2.25)
-        #time.sleep(1)
-        #self.motor_encoder_move(rotations=2.25 * max_step)
+        time.sleep(1)
+        self.motor_encoder_move(rotations=2.25 * max_step)
         self.discover_mode = False
 
     # Buttons
