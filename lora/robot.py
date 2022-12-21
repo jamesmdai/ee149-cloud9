@@ -148,6 +148,7 @@ class Robot:
 
     def read_radio(self):
         # Recieve the latest Packet, If there is one.
+        print('reading')
         packet = self.radio.receive()
         if packet is None:
             return None
@@ -155,6 +156,7 @@ class Robot:
         # Is the packet garbled?
         try:
             packet_text = str(packet, "utf-8")
+            print('found juan')
             self.num_packets += 1
             self.last_rssi = self.radio.last_rssi
         except UnicodeDecodeError as e:
