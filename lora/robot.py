@@ -237,7 +237,7 @@ class Robot:
     def motor_encoder_move(self, rotations=1.5, slope=1, minduty=15, maxduty=40):
         self.stateDeadline = self.stateCount + rotations * ROTATION_ENCODINGS
         init_err = (self.stateDeadline - self.stateCount) # set the initial error to a larger value so that slope wont overcount it
-        while self.stateDeadline and self.stateCount <= self.stateDeadline:
+        while self.stateDeadline and self.stateCount < self.stateDeadline:
             error = self.stateDeadline - self.stateCount
             #print(f"moving, error = {error}")
             self.motor_fwd(min(maxduty, maxduty * slope * error/init_err + minduty))
