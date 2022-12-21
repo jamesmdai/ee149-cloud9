@@ -127,7 +127,7 @@ class Robot:
             return
         try:
             self.temperature, self.humidity = self.sensor.temperature, self.sensor.humidity
-        except RuntimeError as e:
+        except RuntimeError, OverflowError as e:
             pass
 
     def read_motor_encoder(self):
@@ -337,6 +337,6 @@ def main():
     robot_tasks = [read_lora, read_motor, read_sensor]
     tasks = robot_tasks if r.robot else controller_tasks
     for task in tasks:
-        t = threading.Thread(target=task)
+        t = threading.Thread(name=str(task), target=task)
         t.start()
 main()
