@@ -337,6 +337,6 @@ def main():
     robot_tasks = [read_lora, read_motor, read_sensor]
     tasks = robot_tasks if r.robot else controller_tasks
     for task in tasks:
-        t = threading.Thread(name=task.func_name, target=task)
+        t = threading.Thread(name=task.__name__, target=task)
         t.start()
 main()
