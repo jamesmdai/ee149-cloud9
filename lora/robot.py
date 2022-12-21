@@ -277,6 +277,7 @@ class Robot:
             print(f"RSSI: {self.radio.last_rssi}")
             if (self.radio.last_rssi > max_seen):
                 print(f" self.radio.last_rssi > max_seen {self.radio.last_rssi > max_seen}")
+                print(self.radio.last_rssi, max_seen)
                 print("step: " + str(step))
                 max_step = step
             time.sleep(1.5)
