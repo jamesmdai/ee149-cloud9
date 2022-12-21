@@ -19,6 +19,7 @@ import threading
 MOTOR_ENCODER_PIN = 4
 SENSOR_PIN = D19
 BAUD_RATE = 2000000
+BIT_RATE = 1000
 TX_POWER = 17
 RADIO_FREQUENCY = 915.0
 
@@ -105,6 +106,7 @@ class Robot:
         self.radio = adafruit_rfm69.RFM69(spi, CS, RESET, RADIO_FREQUENCY, baudrate=BAUD_RATE)
         self.radio.tx_power = TX_POWER
         self.radio.encryption_key = b'\x01\x02\x03\x04\x05\x06\x07\x08\x01\x02\x03\x04\x05\x06\x07\x08'
+        self.radio.bitrate = BITRATE
 
         # Servo
         GPIO.setup(SERVO_PIN, GPIO.OUT)
