@@ -30,6 +30,7 @@ SERVO_PIN = 13
 LEFT_ANGLE = 0
 CENTER_ANGLE = 90
 RIGHT_ANGLE = 15
+DISC_ANGLE = (CENTER_ANGLE - RIGHT_ANGLE) / 2
 
 class GearState(Enum):
     IDLE = "IDLE"
@@ -223,7 +224,7 @@ class Robot:
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
 
-    def motor_fwd(self, duty=75):
+    def motor_fwd(self, duty:float=75):
         self.gear = GearState.FWD
         self.m_f_pwm.start(duty)
         self.m_b_pwm.stop()
@@ -233,11 +234,13 @@ class Robot:
         self.m_f_pwm.stop()
         self.m_b_pwm.start(duty)
 
-    def motor_encoder_move(self, rotations=1.5, duty=75):
+    def motor_encoder_move(self, rotations=1.5, slope=1, minduty=15, maxduty=75):
         self.stateDeadline = self.stateCount + rotations * ROTATION_ENCODINGS
+        init_err = (self.stateDeadline - self.stateCount) # set the initial error to a larger value so that slope wont overcount it
         while self.stateDeadline and self.stateCount <= self.stateDeadline:
-            print("moving")
-            self.motor_fwd(duty)
+            error = self.stateDeadline - self.stateCount
+            print(f"moving, error = {error}")
+            self.motor_fwd(max(maxduty, 100 * slope * error/init_err + minduty))
         self.gear = GearState.IDLE
         self.motor_idle()
         self.stateDeadline = None
@@ -254,9 +257,10 @@ class Robot:
         #self.servo.ChangeDutyCycle(0)
 
     def discover(self):
+        # The mode to search for angle of greatest receive strength
         self.discover_mode = True
         self.turn = TurnState.RIGHT
-        self.set_servo(RIGHT_ANGLE)
+        self.set_servo(DISC_ANGLE) # instead of turning in place. Move in a circle to increase the distance per every 45 degree increment
         self.refresh_display()
         
         max_seen = -1000
@@ -273,9 +277,9 @@ class Robot:
             if (self.radio.last_rssi > max_seen):
                 max_step = step
             time.sleep(.6)
-            self.motor_encoder_move(rotations=2.25, duty=25)
+            self.motor_encoder_move(rotations=2.25)
         time.sleep(1)
-        self.motor_encoder_move(rotations=2.25 * max_step, duty=25)
+        self.motor_encoder_move(rotations=2.25 * max_step)
         self.discover_mode = False
 
     # Buttons
