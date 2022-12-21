@@ -270,16 +270,16 @@ class Robot:
             print("step: " + str(step))
             curr_pings = self.num_packets
             print(curr_pings)
-            while not self.await_ping(curr_pings):
-                print(self.num_packets)
-                time.sleep(1.0)
-            rssi_vals.append(self.radio.last_rssi)
-            if (self.radio.last_rssi > max_seen):
-                max_step = step
+            # while not self.await_ping(curr_pings):
+            #     print(self.num_packets)
+            #     time.sleep(1.0)
+            # rssi_vals.append(self.radio.last_rssi)
+            # if (self.radio.last_rssi > max_seen):
+            #     max_step = step
             time.sleep(.6)
             self.motor_encoder_move(rotations=2.25)
-        time.sleep(1)
-        self.motor_encoder_move(rotations=2.25 * max_step)
+        #time.sleep(1)
+        #self.motor_encoder_move(rotations=2.25 * max_step)
         self.discover_mode = False
 
     # Buttons
