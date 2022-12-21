@@ -113,22 +113,12 @@ class Robot:
 
     def refresh_display(self):
         self.display.fill(0)
-        if self.robot:
-            self.display.text(
-                    f"G: {self.gear.value} T: {self.turn.value}" +
-                    f"\nPKTS_RCVD: {self.num_packets}" +
-                    f"\nTEM: {self.temperature} HUM: {self.humidity}" +
-                    f"\nENC: {self.stateCount}" + 
-                    f"\nRSSI: {self.last_rssi}",
-                    0, 0, 1
-            )
-        else:
-            self.display.text(
-                    f"G: {self.gear.value} T: {self.turn.value}" +
-                    f"\nPKTS_RCVD: {self.num_packets}" +
-                    f"\nTEM: {self.temperature} HUM: {self.humidity}" + 
-                    f"\nRSSI: {self.last_rssi}",
-                    0, 0, 1
+        self.display.text(
+                f"G: {self.gear.value} T: {self.turn.value}" +
+                f"\nPKTS_RCVD: {self.num_packets}" +
+                f"\nTEM: {self.temperature} HUM: {self.humidity}" + 
+                f"\nRSSI: {self.last_rssi}",
+                0, 0, 1
             )
         self.display.show()
 
