@@ -252,9 +252,9 @@ class Robot:
         duty = angle / 18 + 2
         GPIO.output(SERVO_PIN, True)
         self.servo.ChangeDutyCycle(duty)
-        #time.sleep(1)
-        #GPIO.output(SERVO_PIN, False)
-        #self.servo.ChangeDutyCycle(0)
+        time.sleep(1)
+        GPIO.output(SERVO_PIN, False)
+        self.servo.ChangeDutyCycle(0)
 
     def discover(self):
         # The mode to search for angle of greatest receive strength
@@ -278,7 +278,8 @@ class Robot:
             if (self.radio.last_rssi > max_seen):
                 max_step = step
                 max_seen = self.radio.last_rssi
-            time.sleep(1.5)
+            time.sleep(.5)
+            self.set_servo(DISC_ANGLE)
             self.motor_encoder_move(rotations=2.25, maxduty=35)
         time.sleep(1)
         print(f"starting move to max_step # {max_step}")
