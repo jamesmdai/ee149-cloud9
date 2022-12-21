@@ -275,7 +275,7 @@ class Robot:
                 for thread in threading.enumerate():
                     print(thread.is_alive(), thread.name)
                 print(self.num_packets)
-                time.sleep(.1)
+                time.sleep(1.0)
             rssi_vals.append(self.radio.last_rssi)
             if (self.radio.last_rssi > max_seen):
                 max_step = step
