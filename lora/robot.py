@@ -239,7 +239,7 @@ class Robot:
         init_err = (self.stateDeadline - self.stateCount) # set the initial error to a larger value so that slope wont overcount it
         while self.stateDeadline and self.stateCount <= self.stateDeadline:
             error = self.stateDeadline - self.stateCount
-            print(f"moving, error = {error}")
+            #print(f"moving, error = {error}")
             self.motor_fwd(min(maxduty, maxduty * slope * error/init_err + minduty))
         self.gear = GearState.IDLE
         self.motor_idle()
@@ -271,15 +271,19 @@ class Robot:
             curr_pings = self.num_packets
             print(curr_pings)
             while not self.await_ping(curr_pings):
-                print(self.num_packets)
+                #print(self.num_packets)
                 time.sleep(1.0)
             rssi_vals.append(self.radio.last_rssi)
+            print(f"RSSI: {self.radio.last_rssi}")
             if (self.radio.last_rssi > max_seen):
                 max_step = step
             time.sleep(1.5)
             self.motor_encoder_move(rotations=2.25)
         time.sleep(1)
-        self.motor_encoder_move(rotations=2.25 * max_step, maxduty=20)
+        print(f"starting move to max_step # {max_step}")
+        for step in range(max_step):
+            time.sleep(1.5)
+            self.motor_encoder_move(rotations=2.25)
         self.discover_mode = False
 
     # Buttons
