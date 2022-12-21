@@ -46,9 +46,6 @@ class Robot:
         self.gear = GearState.IDLE
         self.turn = TurnState.CENTER
         self.num_packets = 0
-        self.ping_cnt = 0
-        self.ping_rec_cnt = 0
-        self.checked_rec_cnt = 0
         self.temperature = 0.0
         self.humidity = 0.0
         self.last_rssi = None
@@ -56,6 +53,7 @@ class Robot:
         # Enable sensor if robot == TRUE
         self.robot = robot
         self.sensor = adafruit_dht.DHT22(SENSOR_PIN) if robot else None
+        self.discover_mode = False # robot drops any state change packets when in discover mode
 
         # Button A
         self.btnA = DigitalInOut(board.D5)
@@ -140,7 +138,7 @@ class Robot:
         try:
             self.temperature, self.humidity = self.sensor.temperature, self.sensor.humidity
         except RuntimeError as e:
-            pass # fuck a temp sensor print(e)
+            pass
 
     def read_motor_encoder(self):
         new_encoder_state = GPIO.input(MOTOR_ENCODER_PIN)
@@ -151,17 +149,11 @@ class Robot:
     def ping(self):
         if self.robot:
             return
-        if not self.ping_cnt % 10:
-            data = bytes("PING", "utf-8")
-            self.send_radio(data)
-        self.ping_cnt += 1
+        data = bytes("PING", "utf-8")
+        self.send_radio(data)
 
-    def check_recieved_ping(self):
-        if self.ping_rec_cnt <= self.checked_rec_cnt:
-            return False
-        else:
-            self.checked_rec_cnt = self.ping_rec_cnt
-            return True
+    def await_ping(self, curr_pings):
+        return self.num_packets > curr_pings
 
     def read_radio(self):
         # Recieve the latest Packet, If there is one.
@@ -171,18 +163,19 @@ class Robot:
 
         # Is the packet garbled?
         try:
-            self.ping_rec_cnt += 1
             packet_text = str(packet, "utf-8")
+            self.num_packets += 1
+            self.last_rssi = self.radio.last_rssi
         except UnicodeDecodeError as e:
             print(e)
             return
-        self.num_packets += 1
-        self.last_rssi = self.radio.last_rssi
 
         # Interpret the Command
         # State change packets for robot
         if self.robot:
-            if packet_text == "GEAR":
+            if self.discover_mode:
+                pass
+            elif packet_text == "GEAR":
                 self.change_gear()
             elif packet_text == "TURN":
                 self.change_turn()
@@ -271,6 +264,7 @@ class Robot:
         #self.servo.ChangeDutyCycle(0)
 
     def discover(self):
+        self.discover_mode = True
         self.turn = TurnState.RIGHT
         self.set_servo(RIGHT_ANGLE)
         
@@ -278,18 +272,17 @@ class Robot:
         max_step = 0
         rssi_vals = []
         for step in range(8):
-            print("doing incr")
-            while not self.check_recieved_ping():
-                print(self.checked_rec_cnt, self.ping_rec_cnt)
+            curr_pings = self.num_packets
+            while not self.await_ping(curr_pings):
                 time.sleep(.1)
             rssi_vals.append(self.radio.last_rssi)
             if (self.radio.last_rssi > max_seen):
                 max_step = step
-            print(f"got rssi {self.radio.last_rssi}")
             time.sleep(.6)
             self.motor_encoder_move(rotations=.75, duty=40)
         time.sleep(1)
         self.motor_encoder_move(rotations=.75*max_step, duty=40)
+        self.discover_mode = False
 
     # Buttons
     def buttonA(self):
@@ -312,7 +305,8 @@ class Robot:
         self.send_radio(data)
 
 r = Robot(robot=(len(sys.argv) < 2))
-def taskA():
+
+def read_lora():
     while True:
         if not r.btnA.value:
             r.buttonA()
@@ -320,17 +314,27 @@ def taskA():
             r.buttonB()
         if not r.btnC.value:
             r.buttonC()
-        r.read_sensor()
-        r.ping()
         r.read_radio()
         time.sleep(0.1)
 
-def taskB():
+def read_sensor():
+    while True:
+        r.read_sensor()
+        time.sleep(0.5)
+
+def read_motor():
     while True:
         r.read_motor_encoder()
 
+def ping():
+    while True:
+        r.ping()
+        time.sleep(1.0)
+
 def main():
-    tasks = [taskA, taskB]
+    controller_tasks = [read_lora, ping]
+    robot_tasks = [read_lora, read_motor, read_sensor]
+    tasks = robot_tasks if r.robot else controller_tasks
     for task in tasks:
         t = threading.Thread(target=task)
         t.start()
