@@ -272,15 +272,18 @@ class Robot:
             print("step: " + str(step))
             curr_pings = self.num_packets
             print(curr_pings)
-            while not self.await_ping(curr_pings):
+            count = 0
+            while not self.await_ping(curr_pings) and count < 8:
                 #print(self.num_packets)
                 time.sleep(1.0)
-            rssi_vals.append(self.radio.last_rssi)
-            print(f"RSSI: {self.radio.last_rssi}")
-            if (self.radio.last_rssi > max_seen):
-                max_step = step
-                max_seen = self.radio.last_rssi
-            time.sleep(.5)
+                count += 1
+            if count < 8:
+                rssi_vals.append(self.radio.last_rssi)
+                print(f"RSSI: {self.radio.last_rssi}")
+                if (self.radio.last_rssi > max_seen):
+                    max_step = step
+                    max_seen = self.radio.last_rssi
+                time.sleep(.5)
             self.set_servo(DISC_ANGLE)
             self.motor_encoder_move(rotations=1.8, maxduty=35)
         time.sleep(1)
