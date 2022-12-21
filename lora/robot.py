@@ -173,7 +173,7 @@ class Robot:
             elif packet_text == "TURN":
                 self.change_turn()
             elif packet_text == "DISCOVER":
-                t = threading.Thread(target=self.discover)
+                t = threading.Thread(name="discover", target=self.discover)
                 t.start()
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
@@ -337,6 +337,6 @@ def main():
     robot_tasks = [read_lora, read_motor, read_sensor]
     tasks = robot_tasks if r.robot else controller_tasks
     for task in tasks:
-        t = threading.Thread(name=str(task), target=task)
+        t = threading.Thread(name=task.func_name, target=task)
         t.start()
 main()
