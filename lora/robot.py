@@ -140,6 +140,7 @@ class Robot:
         if self.robot:
             return
         data = bytes("PING", "utf-8")
+        print('pinging')
         self.send_radio(data)
 
     def await_ping(self, curr_pings):
