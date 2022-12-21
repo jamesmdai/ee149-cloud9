@@ -115,6 +115,7 @@ class Robot:
         self.display.fill(0)
         self.display.text(
                 f"G: {self.gear.value} T: {self.turn.value}" +
+                "D: T" if self.discover_mode else "D: F" +
                 f"\nPKTS_RCVD: {self.num_packets}" +
                 f"\nTEM: {self.temperature} HUM: {self.humidity}" + 
                 f"\nRSSI: {self.last_rssi}",
