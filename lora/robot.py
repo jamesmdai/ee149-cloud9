@@ -175,6 +175,7 @@ class Robot:
             elif packet_text == "DISCOVER":
                 t = threading.Thread(name="discover", target=self.discover)
                 t.start()
+                print(t.native_id)
             # robot ACKs packet
             s = f"{self.gear.value} {self.turn.value} {self.temperature} {self.humidity}"
             data = bytes(s, "utf-8")
