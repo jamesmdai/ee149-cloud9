@@ -276,10 +276,8 @@ class Robot:
             rssi_vals.append(self.radio.last_rssi)
             print(f"RSSI: {self.radio.last_rssi}")
             if (self.radio.last_rssi > max_seen):
-                print(f" self.radio.last_rssi > max_seen {self.radio.last_rssi > max_seen}")
-                print(self.radio.last_rssi, max_seen)
-                print("step: " + str(step))
                 max_step = step
+                max_seen = self.radio.last_rssi
             time.sleep(1.5)
             self.motor_encoder_move(rotations=2.25)
         time.sleep(1)
