@@ -240,7 +240,7 @@ class Robot:
         while self.stateDeadline and self.stateCount <= self.stateDeadline:
             error = self.stateDeadline - self.stateCount
             print(f"moving, error = {error}")
-            self.motor_fwd(max(maxduty, 100 * slope * error/init_err + minduty))
+            self.motor_fwd(min(maxduty, maxduty * slope * error/init_err + minduty))
         self.gear = GearState.IDLE
         self.motor_idle()
         self.stateDeadline = None
