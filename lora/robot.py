@@ -257,13 +257,19 @@ class Robot:
         self.discover_mode = True
         self.turn = TurnState.RIGHT
         self.set_servo(RIGHT_ANGLE)
+        self.refresh_display()
+
+        print('discovering')
         
         max_seen = -1000
         max_step = 0
         rssi_vals = []
         for step in range(8):
+            print("step: " + str(step))
             curr_pings = self.num_packets
+            print(curr_pings)
             while not self.await_ping(curr_pings):
+                print(self.num_packets)
                 time.sleep(.1)
             rssi_vals.append(self.radio.last_rssi)
             if (self.radio.last_rssi > max_seen):
