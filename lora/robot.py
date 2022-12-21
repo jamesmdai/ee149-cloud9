@@ -110,6 +110,7 @@ class Robot:
         GPIO.setup(SERVO_PIN, GPIO.OUT)
         self.servo = GPIO.PWM(SERVO_PIN, 50)
         self.servo.start(0)
+        self.set_servo(CENTER_ANGLE)
 
     def refresh_display(self):
         self.display.fill(0)
