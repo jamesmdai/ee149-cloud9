@@ -30,7 +30,7 @@ SERVO_PIN = 13
 LEFT_ANGLE = 0
 CENTER_ANGLE = 90
 RIGHT_ANGLE = 15
-DISC_ANGLE = (CENTER_ANGLE - RIGHT_ANGLE) / 2
+DISC_ANGLE = 60
 
 class GearState(Enum):
     IDLE = "IDLE"
@@ -234,7 +234,7 @@ class Robot:
         self.m_f_pwm.stop()
         self.m_b_pwm.start(duty)
 
-    def motor_encoder_move(self, rotations=1.5, slope=1, minduty=15, maxduty=75):
+    def motor_encoder_move(self, rotations=1.5, slope=1, minduty=15, maxduty=40):
         self.stateDeadline = self.stateCount + rotations * ROTATION_ENCODINGS
         init_err = (self.stateDeadline - self.stateCount) # set the initial error to a larger value so that slope wont overcount it
         while self.stateDeadline and self.stateCount <= self.stateDeadline:
@@ -270,13 +270,13 @@ class Robot:
             print("step: " + str(step))
             curr_pings = self.num_packets
             print(curr_pings)
-            # while not self.await_ping(curr_pings):
-            #     print(self.num_packets)
-            #     time.sleep(1.0)
-            # rssi_vals.append(self.radio.last_rssi)
-            # if (self.radio.last_rssi > max_seen):
-            #     max_step = step
-            time.sleep(.6)
+            while not self.await_ping(curr_pings):
+                print(self.num_packets)
+                time.sleep(1.0)
+            rssi_vals.append(self.radio.last_rssi)
+            if (self.radio.last_rssi > max_seen):
+                max_step = step
+            time.sleep(1)
             self.motor_encoder_move(rotations=2.25)
         #time.sleep(1)
         #self.motor_encoder_move(rotations=2.25 * max_step)
