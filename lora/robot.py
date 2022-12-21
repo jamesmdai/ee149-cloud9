@@ -127,7 +127,7 @@ class Robot:
             return
         try:
             self.temperature, self.humidity = self.sensor.temperature, self.sensor.humidity
-        except RuntimeError, OverflowError as e:
+        except RuntimeError or OverflowError as e:
             pass
 
     def read_motor_encoder(self):
