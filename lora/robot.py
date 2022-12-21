@@ -180,22 +180,9 @@ class Robot:
         # State change packets for robot
         if self.robot:
             if packet_text == "GEAR":
-                if self.gear == GearState.IDLE:
-                    self.gear = GearState.FWD
-                    self.motor_fwd()
-                elif self.gear == GearState.FWD:
-                    self.gear = GearState.BWD
-                    self.motor_bwd()
-                elif self.gear == GearState.BWD:
-                    self.gear = GearState.IDLE
-                    self.motor_idle()
+                self.change_gear()
             elif packet_text == "TURN":
-                if self.turn == TurnState.RIGHT:
-                    self.turn = TurnState.CENTER
-                    self.set_servo(CENTER_ANGLE)
-                elif self.turn == TurnState.CENTER:
-                    self.turn = TurnState.RIGHT
-                    self.set_servo(RIGHT_ANGLE)
+                self.change_turn()
             elif packet_text == "DISCOVER":
                 t = threading.Thread(target=self.discover)
                 t.start()
@@ -227,8 +214,26 @@ class Robot:
     def send_radio(self, data):
         self.radio.send(data)
 
+    # State changes
+    def change_gear(self):
+        if self.gear == GearState.IDLE:
+            self.motor_fwd()
+        elif self.gear == GearState.FWD:
+            self.motor_bwd()
+        elif self.gear == GearState.BWD:
+            self.motor_idle()
+
+    def change_turn(self):
+        if self.turn == TurnState.RIGHT:
+            self.turn = TurnState.CENTER
+            self.set_servo(CENTER_ANGLE)
+        elif self.turn == TurnState.CENTER:
+            self.turn = TurnState.RIGHT
+            self.set_servo(RIGHT_ANGLE)
+
     # Movement
     def motor_idle(self):
+        self.gear = GearState.IDLE
         self.m_f_pwm.stop()
         self.m_b_pwm.stop()
 
@@ -236,6 +241,11 @@ class Robot:
         self.gear = GearState.FWD
         self.m_f_pwm.start(duty)
         self.m_b_pwm.stop()
+
+    def motor_bwd(self, duty=75):
+        self.gear = GearState.BWD
+        self.m_f_pwm.stop()
+        self.m_b_pwm.start(duty)
 
     def motor_encoder_move(self, rotations=1.5, duty=75):
         self.stateDeadline = self.stateCount + rotations * ROTATION_ENCODINGS
@@ -245,11 +255,6 @@ class Robot:
         self.gear = GearState.IDLE
         self.motor_idle()
         self.stateDeadline = None
-
-    def motor_bwd(self, duty=75):
-        self.gear = GearState.BWD
-        self.m_f_pwm.stop()
-        self.m_b_pwm.start(duty)
 
     def set_servo(self, angle):
         GPIO.output(SERVO_PIN, False)
@@ -285,12 +290,21 @@ class Robot:
 
     # Buttons
     def buttonA(self):
+        if self.robot:
+            self.change_gear()
+            return
         data = bytes("GEAR", "utf-8")
         self.send_radio(data)
     def buttonB(self):
+        if self.robot:
+            self.change_turn()
+            return
         data = bytes("TURN", "utf-8")
         self.send_radio(data)
     def buttonC(self):
+        if self.robot:
+            self.discover()
+            return
         data = bytes("DISCOVER", "utf-8")
         self.send_radio(data)
 
